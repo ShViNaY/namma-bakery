@@ -5,126 +5,201 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Typography */
+  --font-sans: var(--font-dm-sans), var(--font-kannada), var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --font-heading: var(--font-fraunces), Georgia, serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-kannada: var(--font-kannada), sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Bakery Core Visual Colors */
+  --color-cream: var(--cream);
+  --color-crust: var(--crust);
+  --color-cocoa: var(--cocoa);
+  --color-caramel: var(--caramel);
+  --color-surface: var(--surface);
+  --color-roundel-red: var(--roundel-red);
+  --color-muted-text: var(--muted-foreground);
+
+  /* Semantic UI Tokens (shadcn compatible) */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Sidebar Tokens */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Chart Tokens */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Shape: Crisp 4px default radius */
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: var(--radius);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-3xl: calc(var(--radius) * 2);
+  --radius-4xl: calc(var(--radius) * 2);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* -------------------------------------------------------------
+     Core Bakery Palette (from physical storefront & price sheet)
+     ------------------------------------------------------------- */
+  --cream: oklch(0.952 0.021 82.5);          /* #F6EFE0 Cream warm background */
+  --crust: oklch(0.895 0.032 80.0);          /* #EADBC0 Warm golden crust border */
+  --cocoa: oklch(0.272 0.035 55.0);          /* #3B2A20 Deep cocoa dark brown / text & primary */
+  --caramel: oklch(0.485 0.115 52.0);        /* #8A4B1F Baked caramel accent / highlights / focus */
+  --surface: oklch(0.988 0.012 85.0);        /* #FFFBF2 Parchment soft warm surface / cards */
+  --roundel-red: oklch(0.495 0.195 28.5);    /* #B3261E Roundel red / alerts & cherry detail */
+
+  /* -------------------------------------------------------------
+     Semantic UI Tokens (Warm Light Theme)
+     ------------------------------------------------------------- */
+  --background: var(--cream);
+  --foreground: var(--cocoa);
+
+  --card: var(--surface);
+  --card-foreground: var(--cocoa);
+
+  --popover: var(--surface);
+  --popover-foreground: var(--cocoa);
+
+  --primary: var(--cocoa);
+  --primary-foreground: var(--cream);
+
+  --secondary: oklch(0.925 0.025 80.0);
+  --secondary-foreground: var(--cocoa);
+
+  --muted: oklch(0.932 0.022 81.0);
+  --muted-foreground: oklch(0.485 0.028 55.0); /* #6E5D53 Muted warm text (AAA/AA accessible) */
+
+  --accent: oklch(0.925 0.025 80.0);
+  --accent-foreground: var(--cocoa);
+
+  --destructive: var(--roundel-red);
+  --destructive-foreground: oklch(0.988 0.012 85.0);
+
+  --border: var(--crust);
+  --input: var(--crust);
+  --ring: var(--caramel);
+
+  /* Default Radius: 4px crisp corners */
+  --radius: 4px;
+
+  /* Sidebar Tokens */
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--cocoa);
+  --sidebar-primary: var(--cocoa);
+  --sidebar-primary-foreground: var(--cream);
+  --sidebar-accent: oklch(0.932 0.022 81.0);
+  --sidebar-accent-foreground: var(--cocoa);
+  --sidebar-border: var(--crust);
+  --sidebar-ring: var(--caramel);
+
+  /* Chart Tokens (Warm Bakery Tones) */
+  --chart-1: oklch(0.485 0.115 52.0);        /* Caramel */
+  --chart-2: oklch(0.272 0.035 55.0);        /* Cocoa */
+  --chart-3: oklch(0.68 0.09 65.0);          /* Toasted Honey */
+  --chart-4: oklch(0.495 0.195 28.5);        /* Roundel Red */
+  --chart-5: oklch(0.85 0.04 80.0);          /* Crust */
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Restrained Warm Dark Theme (Dark Roasted Espresso) */
+  --cream: oklch(0.952 0.021 82.5);
+  --crust: oklch(0.32 0.03 55.0);
+  --cocoa: oklch(0.952 0.021 82.5);
+  --caramel: oklch(0.72 0.12 70.0);
+  --surface: oklch(0.22 0.025 55.0);
+  --roundel-red: oklch(0.65 0.18 28.5);
+
+  --background: oklch(0.18 0.02 55.0);
+  --foreground: oklch(0.952 0.021 82.5);
+
+  --card: oklch(0.22 0.025 55.0);
+  --card-foreground: oklch(0.952 0.021 82.5);
+
+  --popover: oklch(0.22 0.025 55.0);
+  --popover-foreground: oklch(0.952 0.021 82.5);
+
+  --primary: oklch(0.72 0.12 70.0);
+  --primary-foreground: oklch(0.18 0.02 55.0);
+
+  --secondary: oklch(0.26 0.025 55.0);
+  --secondary-foreground: oklch(0.952 0.021 82.5);
+
+  --muted: oklch(0.25 0.025 55.0);
+  --muted-foreground: oklch(0.72 0.025 80.0);
+
+  --accent: oklch(0.26 0.025 55.0);
+  --accent-foreground: oklch(0.952 0.021 82.5);
+
+  --destructive: oklch(0.65 0.18 28.5);
+  --destructive-foreground: oklch(0.988 0.012 85.0);
+
+  --border: oklch(0.32 0.03 55.0);
+  --input: oklch(0.32 0.03 55.0);
+  --ring: oklch(0.72 0.12 70.0);
+
+  --sidebar: oklch(0.20 0.025 55.0);
+  --sidebar-foreground: oklch(0.952 0.021 82.5);
+  --sidebar-primary: oklch(0.72 0.12 70.0);
+  --sidebar-primary-foreground: oklch(0.18 0.02 55.0);
+  --sidebar-accent: oklch(0.26 0.025 55.0);
+  --sidebar-accent-foreground: oklch(0.952 0.021 82.5);
+  --sidebar-border: oklch(0.32 0.03 55.0);
+  --sidebar-ring: oklch(0.72 0.12 70.0);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
+  }
+  :focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 2px;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
   }
   html {
     @apply font-sans;
   }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+@utility min-touch-target {
+  min-height: 48px;
+  min-width: 48px;
 }
