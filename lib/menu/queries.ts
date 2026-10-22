@@ -224,3 +224,130 @@ export async function getMenuProducts(options?: {
     };
   }
 }
+
+/**
+ * Fetches a single active product by its slug and ensures it belongs to the specified category.
+ */
+export async function getProductBySlug(
+  categorySlug: string,
+  productSlug: string
+): Promise<{
+  data: Product | null;
+  error: Error | null;
+}> {
+  try {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from("products")
+      .select(`
+        id,
+        category_id,
+        slug,
+        name,
+        name_kn,
+        description,
+        kind,
+        price_tier_id,
+        is_available,
+        orderable_online,
+        requires_confirmation,
+        is_featured,
+        is_best_seller,
+        is_new_arrival,
+        is_seasonal,
+        lead_time_minutes,
+        sort_order,
+        archived_at,
+        category:categories (
+          id,
+          slug,
+          name,
+          name_kn,
+          description
+        ),
+        product_variants (
+          id,
+          product_id,
+          label,
+          price_paise,
+          is_available,
+          sort_order
+        ),
+        price_tiers (
+          id,
+          name,
+          price_tier_rules (
+            id,
+            tier_id,
+            weight_grams,
+            egg_type,
+            finish,
+            price_paise,
+            is_active,
+            note
+          )
+        ),
+        product_images (
+          id,
+          product_id,
+          storage_path,
+          alt_text,
+          sort_order,
+          is_primary
+        )
+      `)
+      .eq("slug", productSlug)
+      .is("archived_at", null)
+      .maybeSingle();
+
+    if (error) {
+      console.error(
+        `[getProductBySlug] Supabase query error for product "${productSlug}":`,
+        error.message
+      );
+      return { data: null, error: new Error(error.message) };
+    }
+
+    if (!data) {
+      return { data: null, error: null };
+    }
+
+    const product = data as unknown as Product;
+
+    // Verify product belongs to the requested category slug
+    if (product.category?.slug !== categorySlug) {
+      return { data: null, error: null };
+    }
+
+    // Attach computed starting price in paise
+    product.startingPricePaise = calculateStartingPricePaise(product);
+
+    // Sort variants by sort_order
+    if (product.product_variants) {
+      product.product_variants.sort((a, b) => a.sort_order - b.sort_order);
+    }
+
+    // Sort images by is_primary desc, then sort_order asc
+    if (product.product_images) {
+      product.product_images.sort((a, b) => {
+        if (a.is_primary && !b.is_primary) return -1;
+        if (!a.is_primary && b.is_primary) return 1;
+        return a.sort_order - b.sort_order;
+      });
+    }
+
+    return { data: product, error: null };
+  } catch (err) {
+    console.error(
+      `[getProductBySlug] Connection/execution failure for product "${productSlug}":`,
+      err
+    );
+    return {
+      data: null,
+      error:
+        err instanceof Error ? err : new Error("Failed to load product"),
+    };
+  }
+}
+

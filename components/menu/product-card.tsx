@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Cake, Clock, UtensilsCrossed, Soup } from "lucide-react";
 import type { Product } from "@/lib/menu/types";
 import { formatPaise } from "@/lib/utils/money";
@@ -24,9 +25,13 @@ export function ProductCard({ product }: ProductCardProps) {
       : null;
 
   const isCake = product.kind === "TIERED_CAKE";
+  const categorySlug = product.category?.slug ?? "cakes";
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-sm border border-border bg-card transition-colors hover:border-caramel/50">
+    <Link
+      href={`/menu/${categorySlug}/${product.slug}`}
+      className="group flex flex-col overflow-hidden rounded-sm border border-border bg-card transition-colors hover:border-caramel/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+    >
       {/* Visual Header / Image Placeholder */}
       <div className="relative flex aspect-4/3 w-full items-center justify-center border-b border-border bg-secondary/50 p-6 text-caramel/70 transition-colors group-hover:bg-secondary/70">
         {renderPlaceholderIcon(product.kind, product.category?.slug)}
@@ -105,6 +110,6 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
