@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Cake, Clock, MapPin, Sparkles, UtensilsCrossed } from "lucide-react";
-import { getMenuCategories } from "@/lib/menu/queries";
+import { ArrowRight, Clock, MapPin, Sparkles } from "lucide-react";
+import { getMenuCategories, getMenuProducts } from "@/lib/menu/queries";
 import { getBakeryJsonLd } from "@/lib/utils/seo";
+import { PopularCakes } from "@/components/home/popular-cakes";
+import { CategoryShowcase } from "@/components/home/category-showcase";
+import { CustomCakeFeature } from "@/components/home/custom-cake-feature";
+import { StoreInfo } from "@/components/home/store-info";
 
 export const instant = false;
 
@@ -16,7 +20,13 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const { data: categories } = await getMenuCategories();
+  const [categoriesResult, productsResult] = await Promise.all([
+    getMenuCategories(),
+    getMenuProducts(),
+  ]);
+
+  const categories = categoriesResult.data ?? [];
+  const products = productsResult.data ?? [];
   const jsonLd = getBakeryJsonLd();
 
   return (
@@ -27,7 +37,7 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* Hero Section */}
+      {/* 1. Hero Section (Retained for Step 1) */}
       <section className="border-b border-border bg-card/40 py-16 sm:py-24">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
           <div className="inline-flex items-center gap-1.5 rounded-sm border border-border bg-secondary/80 px-3 py-1 text-xs text-caramel">
@@ -49,14 +59,14 @@ export default async function HomePage() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/menu"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-sm bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+              className="inline-flex min-h-[48px] h-12 items-center justify-center gap-2 rounded-sm bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
             >
               <span>Explore Bakery Menu</span>
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/menu/cakes"
-              className="inline-flex h-12 items-center justify-center rounded-sm border border-border bg-card px-6 text-sm font-medium text-foreground transition-colors hover:bg-secondary hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+              className="inline-flex min-h-[48px] h-12 items-center justify-center rounded-sm border border-border bg-card px-6 text-sm font-medium text-foreground transition-colors hover:bg-secondary hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
             >
               Celebration Cakes
             </Link>
@@ -77,69 +87,17 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Categories Showcase */}
-      {categories.length > 0 && (
-        <section className="py-12 sm:py-16">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-              <div>
-                <span className="font-kannada text-xs font-medium text-caramel">
-                  ಬೇಕರಿ ಮೆನು
-                </span>
-                <h2 className="font-heading text-2xl font-semibold text-foreground">
-                  Browse by Category
-                </h2>
-              </div>
-              <Link
-                href="/menu"
-                className="inline-flex items-center gap-1 text-sm font-medium text-caramel hover:underline"
-              >
-                <span>View all items</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
+      {/* 2. Popular Cakes / Signature Products */}
+      <PopularCakes products={products} />
 
-            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {categories.map((category) => (
-                <Link
-                  key={category.id}
-                  href={`/menu/${category.slug}`}
-                  className="group flex flex-col justify-between rounded-sm border border-border bg-card p-5 transition-all hover:border-caramel/60 hover:bg-card/90"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-secondary text-caramel">
-                      {category.slug === "cakes" ? (
-                        <Cake className="h-5 w-5 stroke-[1.5]" />
-                      ) : (
-                        <UtensilsCrossed className="h-5 w-5 stroke-[1.5]" />
-                      )}
-                    </div>
-                    {category.name_kn && (
-                      <span className="font-kannada text-xs text-muted-foreground">
-                        {category.name_kn}
-                      </span>
-                    )}
-                  </div>
+      {/* 3. Browse by Category */}
+      <CategoryShowcase categories={categories} />
 
-                  <div className="mt-6">
-                    <h3 className="font-heading text-lg font-semibold text-foreground group-hover:text-caramel">
-                      {category.name}
-                    </h3>
-                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                      {category.description ?? "Freshly prepared every day at our bakery."}
-                    </p>
-                  </div>
+      {/* 4. Custom Cake Feature Band */}
+      <CustomCakeFeature />
 
-                  <div className="mt-4 flex items-center gap-1 text-xs font-medium text-caramel group-hover:underline">
-                    <span>Explore items</span>
-                    <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* 5. Visit Us / Store Information */}
+      <StoreInfo />
     </div>
   );
 }
