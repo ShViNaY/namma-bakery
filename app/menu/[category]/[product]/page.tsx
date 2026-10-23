@@ -181,11 +181,15 @@ export default async function ProductDetailPage({
           {/* Dynamic Configuration & Pricing */}
           {product.kind === "TIERED_CAKE" ? (
             <CakeConfigurator
+              product={product}
+              categorySlug={categorySlug}
               rules={product.price_tiers?.price_tier_rules ?? []}
               startingPricePaise={product.startingPricePaise}
             />
           ) : (
             <ProductVariantPicker
+              product={product}
+              categorySlug={categorySlug}
               variants={product.product_variants ?? []}
               startingPricePaise={product.startingPricePaise}
             />

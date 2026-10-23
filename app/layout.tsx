@@ -34,6 +34,7 @@ const geistMono = Geist_Mono({
 
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { CartProvider } from "@/lib/cart/context";
 
 export const metadata: Metadata = {
   title: "Namma Bakery — Fresh Cakes & Bakes | RR Nagar, Bengaluru",
@@ -51,10 +52,13 @@ export default function RootLayout({
       className={`${dmSans.variable} ${fraunces.variable} ${notoSansKannada.variable} ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <CartProvider>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </CartProvider>
       </body>
     </html>
   );
 }
+

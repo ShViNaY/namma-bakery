@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import Link from "next/link";
+import { Check, ShoppingBag } from "lucide-react";
 import type { CakeFinish, EggType, PriceTierRule } from "@/lib/menu/types";
 import { formatPaise } from "@/lib/utils/money";
 import {
@@ -8,16 +10,39 @@ import {
   formatEggType,
   formatWeightGrams,
 } from "@/lib/menu/utils";
+import { useCart } from "@/lib/cart/context";
+import { generateCartItemKey } from "@/lib/cart/key";
 
 interface CakeConfiguratorProps {
+  product: {
+    id: string;
+    slug: string;
+    name: string;
+    name_kn?: string | null;
+    is_available: boolean;
+    orderable_online: boolean;
+    requires_confirmation: boolean;
+  };
+  categorySlug: string;
   rules: PriceTierRule[];
   startingPricePaise?: number | null;
 }
 
 export function CakeConfigurator({
+  product,
+  categorySlug,
   rules,
   startingPricePaise,
 }: CakeConfiguratorProps) {
+  const { addItem } = useCart();
+  const [justAdded, setJustAdded] = useState(false);
+
+  useEffect(() => {
+    if (!justAdded) return;
+    const timer = setTimeout(() => setJustAdded(false), 4000);
+    return () => clearTimeout(timer);
+  }, [justAdded]);
+
   const activeRules = useMemo(
     () => rules.filter((r) => r.is_active && r.price_paise > 0),
     [rules]
@@ -141,6 +166,40 @@ export function CakeConfigurator({
     if (matchingRule) {
       setSelectedFinish(matchingRule.finish);
     }
+  };
+
+  const isOrderable = product.is_available && product.orderable_online;
+  const canAddToCart = isOrderable && currentRule !== undefined;
+
+  const handleAddToCart = () => {
+    if (!canAddToCart || !currentRule) return;
+
+    const configuration = {
+      weightGrams: selectedWeight,
+      eggType: selectedEggType,
+      finish: selectedFinish,
+    };
+
+    const itemKey = generateCartItemKey({
+      productId: product.id,
+      kind: "TIERED_CAKE",
+      configuration,
+    });
+
+    addItem({
+      itemKey,
+      productId: product.id,
+      productSlug: product.slug,
+      productName: product.name,
+      productNameKn: product.name_kn,
+      categorySlug,
+      kind: "TIERED_CAKE",
+      configuration,
+      unitPricePaise: currentRule.price_paise,
+      quantity: 1,
+    });
+
+    setJustAdded(true);
   };
 
   if (activeRules.length === 0) {
@@ -302,6 +361,62 @@ export function CakeConfigurator({
           {currentRule.note}
         </div>
       )}
+
+      {/* Add to Cart Action */}
+      <div className="border-t border-border pt-4 flex flex-col gap-3">
+        <button
+          type="button"
+          disabled={!canAddToCart}
+          onClick={handleAddToCart}
+          aria-label={
+            currentRule
+              ? `Add ${product.name} (${formatWeightGrams(selectedWeight)}, ${formatEggType(selectedEggType)}, ${formatCakeFinish(selectedFinish)}) to cart for ${formatPaise(currentRule.price_paise)}`
+              : "Select configuration to add to cart"
+          }
+          className={`flex h-12 w-full items-center justify-center gap-2 rounded-sm px-6 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel ${
+            canAddToCart
+              ? "bg-caramel text-white hover:bg-caramel/90 active:scale-[0.99]"
+              : "bg-muted text-muted-foreground cursor-not-allowed"
+          }`}
+        >
+          <ShoppingBag className="h-4 w-4" aria-hidden="true" />
+          <span>
+            {!product.is_available
+              ? "Currently Unavailable"
+              : !product.orderable_online
+              ? "Available In-Store Only"
+              : !currentRule
+              ? "Select Configuration"
+              : `Add to Cart • ${formatPaise(currentRule.price_paise)}`}
+          </span>
+        </button>
+
+        {/* Confirmation feedback */}
+        {justAdded && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="flex items-center justify-between rounded-sm border border-emerald-300 bg-emerald-50 px-4 py-2.5 text-xs text-emerald-900 transition-all animate-in fade-in"
+          >
+            <div className="flex items-center gap-2">
+              <Check className="h-4 w-4 text-emerald-700" />
+              <span className="font-medium">Added to cart!</span>
+            </div>
+            <Link
+              href="/cart"
+              className="font-semibold text-emerald-800 underline hover:text-emerald-950 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-700"
+            >
+              View Cart →
+            </Link>
+          </div>
+        )}
+
+        {product.requires_confirmation && isOrderable && (
+          <p className="text-[11px] text-muted-foreground">
+            * This custom cake requires confirmation from our kitchen team after order placement.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
