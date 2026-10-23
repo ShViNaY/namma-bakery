@@ -128,7 +128,7 @@ export function AdminDashboard({
       </div>
 
       {/* Dashboard Body Content */}
-      <main className="flex-1 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-6">
+      <div className="flex-1 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-6">
         {activeTab === "OVERVIEW" && (
           <AdminOverviewView
             summary={summary}
@@ -179,7 +179,7 @@ export function AdminDashboard({
             onActionSuccess={handleActionSuccess}
           />
         )}
-      </main>
+      </div>
     </div>
   );
 }

@@ -248,7 +248,7 @@ export function CheckoutForm() {
             </p>
             <Link
               href="/cart"
-              className="inline-flex h-9 items-center justify-center rounded-sm bg-caramel px-4 text-xs font-semibold text-white transition-colors hover:bg-caramel/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-sm bg-caramel px-4 text-xs font-semibold text-white transition-colors hover:bg-caramel/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
             >
               Choose Pickup Slot in Cart →
             </Link>

@@ -80,11 +80,11 @@ export default async function OrderDetailsPage({
   }
 
   return (
-    <main className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       <OrderTrackingView
         order={order}
         isFreshConfirmation={confirmed === "true"}
       />
-    </main>
+    </div>
   );
 }

@@ -18,7 +18,7 @@ export function HeaderCartButton() {
     <Link
       href="/cart"
       aria-label={label}
-      className="relative flex h-11 min-w-11 items-center justify-center rounded-md px-3 text-foreground transition-colors hover:bg-secondary hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+      className="relative flex min-h-[48px] min-w-[48px] items-center justify-center rounded-md px-3 text-foreground transition-colors hover:bg-secondary hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
     >
       <ShoppingBag className="h-5 w-5" aria-hidden="true" />
       <span className="ml-2 hidden text-sm font-medium sm:inline">Cart</span>

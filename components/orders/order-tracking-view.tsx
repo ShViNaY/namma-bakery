@@ -371,7 +371,7 @@ export function OrderTrackingView({
       <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
         <Link
           href="/menu"
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-caramel px-6 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-caramel/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+          className="inline-flex min-h-[48px] h-12 items-center justify-center gap-2 rounded-sm bg-caramel px-6 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-caramel/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
         >
           <span>Explore More Treats</span>
           <ArrowRight className="h-4 w-4" />
@@ -379,7 +379,7 @@ export function OrderTrackingView({
 
         <Link
           href="/"
-          className="inline-flex h-11 items-center justify-center rounded-sm border border-border bg-card px-5 text-sm font-semibold text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
+          className="inline-flex min-h-[48px] h-12 items-center justify-center rounded-sm border border-border bg-card px-5 text-sm font-semibold text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
         >
           Return to Home
         </Link>

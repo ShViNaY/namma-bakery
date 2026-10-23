@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function OrdersIndexPage() {
   return (
-    <main className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-xl px-4 py-12 sm:px-6 sm:py-16 space-y-6">
         <nav aria-label="Breadcrumb">
           <Link
@@ -37,6 +37,6 @@ export default function OrdersIndexPage() {
 
         <OrderLookupForm />
       </div>
-    </main>
+    </div>
   );
 }

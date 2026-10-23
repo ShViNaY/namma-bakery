@@ -262,21 +262,22 @@ export function CustomCakeForm() {
         </div>
 
         {/* Occasion / Cake Type */}
-        <div className="space-y-2">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-foreground">
+        <fieldset className="space-y-2 border-0 p-0 m-0">
+          <legend className="block text-xs font-semibold uppercase tracking-wider text-foreground">
             Occasion / Event <span className="text-destructive">*</span>
-          </label>
-          <div className="flex flex-wrap gap-2">
+          </legend>
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Select occasion">
             {CAKE_OCCASIONS.map((occ) => {
               const isSelected = cakeType === occ;
               return (
                 <button
                   key={occ}
                   type="button"
+                  aria-pressed={isSelected}
                   onClick={() => setCakeType(occ)}
-                  className={`px-3 py-2 rounded-sm text-xs font-medium transition-colors ${
+                  className={`min-h-[44px] px-3.5 py-2 rounded-sm text-xs font-medium inline-flex items-center justify-center transition-colors ${
                     isSelected
-                      ? "bg-caramel text-white"
+                      ? "bg-caramel text-white shadow-xs"
                       : "border border-border bg-background text-foreground hover:border-caramel/50"
                   }`}
                 >
@@ -291,27 +292,28 @@ export function CustomCakeForm() {
               placeholder="Specify the occasion (e.g. Graduation, Housewarming)..."
               value={customOccasion}
               onChange={(e) => setCustomOccasion(e.target.value)}
-              className="w-full mt-2 min-h-[42px] rounded-sm border border-border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+              className="w-full mt-2 min-h-[48px] rounded-sm border border-border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
             />
           )}
-        </div>
+        </fieldset>
 
         {/* Flavour Choice */}
-        <div className="space-y-2">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-foreground">
+        <fieldset className="space-y-2 border-0 p-0 m-0">
+          <legend className="block text-xs font-semibold uppercase tracking-wider text-foreground">
             Flavour Preference <span className="text-destructive">*</span>
-          </label>
-          <div className="flex flex-wrap gap-2">
+          </legend>
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Select flavour">
             {FLAVOUR_OPTIONS.map((flav) => {
               const isSelected = flavour === flav;
               return (
                 <button
                   key={flav}
                   type="button"
+                  aria-pressed={isSelected}
                   onClick={() => setFlavour(flav)}
-                  className={`px-3 py-2 rounded-sm text-xs font-medium transition-colors ${
+                  className={`min-h-[44px] px-3.5 py-2 rounded-sm text-xs font-medium inline-flex items-center justify-center transition-colors ${
                     isSelected
-                      ? "bg-caramel text-white"
+                      ? "bg-caramel text-white shadow-xs"
                       : "border border-border bg-background text-foreground hover:border-caramel/50"
                   }`}
                 >
@@ -326,23 +328,25 @@ export function CustomCakeForm() {
               placeholder="Describe your desired flavour or special mix..."
               value={customFlavour}
               onChange={(e) => setCustomFlavour(e.target.value)}
-              className="w-full mt-2 min-h-[42px] rounded-sm border border-border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+              className="w-full mt-2 min-h-[48px] rounded-sm border border-border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
             />
           )}
-        </div>
+        </fieldset>
 
         {/* Egg Preference & Shape */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
           {/* Egg Type */}
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-foreground">
+          <fieldset className="space-y-2 border-0 p-0 m-0">
+            <legend className="block text-xs font-semibold uppercase tracking-wider text-foreground">
               Egg Preference <span className="text-destructive">*</span>
-            </label>
-            <div className="grid grid-cols-2 gap-2">
+            </legend>
+            <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Select egg preference">
               <button
                 type="button"
+                role="radio"
+                aria-checked={eggType === "EGGLESS"}
                 onClick={() => setEggType("EGGLESS")}
-                className={`p-3 rounded-sm border text-left flex items-center justify-between transition-colors ${
+                className={`min-h-[48px] p-3 rounded-sm border text-left flex items-center justify-between transition-colors ${
                   eggType === "EGGLESS"
                     ? "border-emerald-600 bg-emerald-500/10 text-emerald-900 dark:text-emerald-300"
                     : "border-border bg-background text-foreground hover:border-caramel/40"
@@ -362,8 +366,10 @@ export function CustomCakeForm() {
 
               <button
                 type="button"
+                role="radio"
+                aria-checked={eggType === "REGULAR"}
                 onClick={() => setEggType("REGULAR")}
-                className={`p-3 rounded-sm border text-left flex items-center justify-between transition-colors ${
+                className={`min-h-[48px] p-3 rounded-sm border text-left flex items-center justify-between transition-colors ${
                   eggType === "REGULAR"
                     ? "border-amber-600 bg-amber-500/10 text-amber-900 dark:text-amber-300"
                     : "border-border bg-background text-foreground hover:border-caramel/40"
@@ -381,24 +387,25 @@ export function CustomCakeForm() {
                 {eggType === "REGULAR" && <Check className="size-4 text-amber-700" />}
               </button>
             </div>
-          </div>
+          </fieldset>
 
           {/* Cake Shape */}
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-foreground">
+          <fieldset className="space-y-2 border-0 p-0 m-0">
+            <legend className="block text-xs font-semibold uppercase tracking-wider text-foreground">
               Cake Shape / Structure
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            </legend>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2" role="group" aria-label="Select cake shape">
               {SHAPE_OPTIONS.map((sh) => {
                 const isSelected = shape === sh;
                 return (
                   <button
                     key={sh}
                     type="button"
+                    aria-pressed={isSelected}
                     onClick={() => setShape(sh)}
-                    className={`px-2.5 py-2 rounded-sm text-xs font-medium text-center transition-colors truncate ${
+                    className={`min-h-[44px] px-2.5 py-2 rounded-sm text-xs font-medium flex items-center justify-center text-center transition-colors truncate ${
                       isSelected
-                        ? "bg-caramel text-white"
+                        ? "bg-caramel text-white shadow-xs"
                         : "border border-border bg-background text-foreground hover:border-caramel/50"
                     }`}
                   >
@@ -407,26 +414,27 @@ export function CustomCakeForm() {
                 );
               })}
             </div>
-          </div>
+          </fieldset>
         </div>
 
         {/* Serving Size & Weight */}
-        <div className="space-y-2 pt-2">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-foreground">
+        <fieldset className="space-y-2 pt-2 border-0 p-0 m-0">
+          <legend className="block text-xs font-semibold uppercase tracking-wider text-foreground">
             Approximate Weight / Serving Size <span className="text-destructive">*</span>
-          </label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+          </legend>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2" role="group" aria-label="Select approximate weight">
             {WEIGHT_PRESETS.map((p) => {
               const isSelected = !isCustomWeight && weightGrams === p.grams;
               return (
                 <button
                   key={p.grams}
                   type="button"
+                  aria-pressed={isSelected}
                   onClick={() => {
                     setIsCustomWeight(false);
                     setWeightGrams(p.grams);
                   }}
-                  className={`p-2.5 rounded-sm border text-left transition-colors ${
+                  className={`min-h-[50px] p-2.5 rounded-sm border text-left flex flex-col justify-center transition-colors ${
                     isSelected
                       ? "border-caramel bg-caramel/10"
                       : "border-border bg-background hover:border-caramel/50"
@@ -467,7 +475,7 @@ export function CustomCakeForm() {
               </div>
             )}
           </div>
-        </div>
+        </fieldset>
       </div>
 
       {/* SECTION 2: Design Details, Message & Reference Image */}
@@ -611,7 +619,7 @@ export function CustomCakeForm() {
                 min={tomorrowIst}
                 value={preferredPickupDate}
                 onChange={(e) => setPreferredPickupDate(e.target.value)}
-                className="w-full min-h-[46px] rounded-sm border border-border bg-background pl-10 pr-3.5 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                className="w-full min-h-[48px] rounded-sm border border-border bg-background pl-10 pr-3.5 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
               />
             </div>
             <p className="text-[11px] text-muted-foreground">
@@ -633,7 +641,7 @@ export function CustomCakeForm() {
                 required
                 value={preferredPickupTime}
                 onChange={(e) => setPreferredPickupTime(e.target.value)}
-                className="w-full min-h-[46px] rounded-sm border border-border bg-background pl-10 pr-3.5 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                className="w-full min-h-[48px] rounded-sm border border-border bg-background pl-10 pr-3.5 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
               >
                 {PICKUP_WINDOWS.map((win) => (
                   <option key={win} value={win}>
@@ -666,7 +674,7 @@ export function CustomCakeForm() {
                 placeholder="e.g. Ramesh Kumar"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
-                className="w-full min-h-[46px] rounded-sm border border-border bg-background pl-10 pr-3.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                className="w-full min-h-[48px] rounded-sm border border-border bg-background pl-10 pr-3.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
               />
             </div>
           </div>
@@ -690,7 +698,7 @@ export function CustomCakeForm() {
                 placeholder="98450 12345"
                 value={customerPhone}
                 onChange={(e) => setCustomerPhone(e.target.value)}
-                className="w-full min-h-[46px] rounded-sm border border-border bg-background pl-12 pr-3.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                className="w-full min-h-[48px] rounded-sm border border-border bg-background pl-12 pr-3.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
               />
             </div>
             <p className="text-[11px] text-muted-foreground">
@@ -714,7 +722,7 @@ export function CustomCakeForm() {
               placeholder="e.g. ramesh@example.com"
               value={customerEmail}
               onChange={(e) => setCustomerEmail(e.target.value)}
-              className="w-full min-h-[46px] rounded-sm border border-border bg-background pl-10 pr-3.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+              className="w-full min-h-[48px] rounded-sm border border-border bg-background pl-10 pr-3.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
             />
           </div>
         </div>
@@ -734,7 +742,7 @@ export function CustomCakeForm() {
             value={additionalNotes}
             onChange={(e) => setAdditionalNotes(e.target.value)}
             placeholder="e.g. Nut allergy, less sugar, gluten-sensitive note, candle requirements..."
-            className="w-full min-h-[44px] rounded-sm border border-border bg-background px-3.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+            className="w-full min-h-[48px] rounded-sm border border-border bg-background px-3.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
           />
         </div>
       </div>

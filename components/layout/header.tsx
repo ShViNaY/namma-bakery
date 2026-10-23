@@ -19,18 +19,24 @@ export function Header() {
         </Link>
 
         {/* Navigation */}
-        <nav className="flex items-center gap-1 sm:gap-2">
+        <nav className="flex items-center gap-1 sm:gap-1.5" aria-label="Main Navigation">
           <Link
             href="/menu"
-            className="flex h-11 items-center rounded-md px-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+            className="flex min-h-[48px] items-center rounded-md px-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
           >
             Menu
           </Link>
           <Link
             href="/custom-cake"
-            className="flex h-11 items-center rounded-md px-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+            className="flex min-h-[48px] items-center rounded-md px-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
           >
             Custom Cakes
+          </Link>
+          <Link
+            href="/orders"
+            className="hidden sm:flex min-h-[48px] items-center rounded-md px-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+          >
+            Track Order
           </Link>
           <HeaderCartButton />
           <div className="hidden items-center gap-2 border-l border-border pl-3 sm:flex">

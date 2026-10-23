@@ -105,7 +105,7 @@ export function StaffDashboard({
       />
 
       {/* Main Dashboard Container */}
-      <main className="flex-1 mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-8 space-y-6">
+      <div className="flex-1 mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-8 space-y-6">
         {/* Section Switcher Tabs: Orders vs Custom Cakes */}
         <div className="flex items-center gap-2 border-b border-border pb-3">
           <button
@@ -274,7 +274,7 @@ export function StaffDashboard({
             </div>
           </div>
         )}
-      </main>
+      </div>
 
       {/* Orders Transition Modal */}
       <StaffStatusModal

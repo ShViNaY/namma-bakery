@@ -94,9 +94,9 @@ export function CustomCakeConfirmation({ request }: CustomCakeConfirmationProps)
           <button
             type="button"
             onClick={handleCopy}
-            className="p-1 rounded text-muted-foreground hover:text-foreground transition-colors"
+            className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
             title="Copy reference number"
-            aria-label="Copy reference"
+            aria-label="Copy reference number"
           >
             {copied ? (
               <Check className="size-4 text-emerald-600" />
@@ -246,14 +246,14 @@ export function CustomCakeConfirmation({ request }: CustomCakeConfirmationProps)
       <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
         <Link
           href="/menu"
-          className="w-full sm:w-auto h-11 px-6 rounded-sm bg-caramel text-white text-xs font-semibold flex items-center justify-center gap-2 hover:bg-caramel/90"
+          className="w-full sm:w-auto min-h-[48px] h-12 px-6 rounded-sm bg-caramel text-white text-xs font-semibold flex items-center justify-center gap-2 hover:bg-caramel/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
         >
           <ShoppingBag className="size-4" />
           <span>Browse Regular Menu</span>
         </Link>
         <Link
           href="/"
-          className="w-full sm:w-auto h-11 px-6 rounded-sm border border-border bg-card text-foreground text-xs font-semibold flex items-center justify-center gap-2 hover:bg-muted"
+          className="w-full sm:w-auto min-h-[48px] h-12 px-6 rounded-sm border border-border bg-card text-foreground text-xs font-semibold flex items-center justify-center gap-2 hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
         >
           <span>Return Home</span>
           <ArrowRight className="size-3.5" />

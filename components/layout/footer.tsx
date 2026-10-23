@@ -44,37 +44,53 @@ export function Footer() {
             <h4 className="font-heading text-sm font-semibold uppercase tracking-wider text-foreground">
               Explore
             </h4>
-            <ul className="mt-3 space-y-2 text-sm">
+            <ul className="mt-2 space-y-1 text-sm">
               <li>
                 <Link
                   href="/menu"
-                  className="text-muted-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                  className="inline-flex min-h-[40px] items-center text-muted-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
                 >
                   Bakery Menu
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/menu/cakes"
-                  className="text-muted-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                  href="/custom-cake"
+                  className="inline-flex min-h-[40px] items-center text-muted-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
                 >
-                  Cakes &amp; Pastries
+                  Custom Cakes
                 </Link>
               </li>
               <li>
                 <Link
                   href="/orders"
-                  className="text-muted-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                  className="inline-flex min-h-[40px] items-center text-muted-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
                 >
                   Track Order
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/staff/login"
+                  className="inline-flex min-h-[40px] items-center text-xs text-muted-foreground/75 transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                >
+                  Staff Portal
                 </Link>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-8 border-t border-border pt-6 text-center text-xs text-muted-foreground">
-          &copy; 2026 Namma Bakery. All rights reserved.
+        <div className="mt-8 border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+          <p>&copy; 2026 Namma Bakery. Handcrafted in Bengaluru. All rights reserved.</p>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/staff/login"
+              className="hover:text-caramel transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
+            >
+              Staff &amp; Admin Access
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
