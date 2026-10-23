@@ -84,3 +84,9 @@ export type OrderFilter =
   | "READY_FOR_PICKUP"
   | "COMPLETED"
   | "CANCELLED_OR_REJECTED";
+
+export type {
+  CustomCakeRequest,
+  CustomCakeStatus,
+  CustomCakeOperationalSummary,
+} from "@/lib/custom-cake/types";

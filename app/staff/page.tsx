@@ -2,7 +2,12 @@ import type { Metadata } from "next";
 import { ShieldAlert, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { requireStaffSession } from "@/lib/staff/auth";
-import { getStaffOrders, calculateOperationalSummary } from "@/lib/staff/queries";
+import {
+  getStaffOrders,
+  calculateOperationalSummary,
+  getStaffCustomCakeRequests,
+  calculateCustomCakeSummary,
+} from "@/lib/staff/queries";
 import { StaffDashboard } from "@/components/staff/staff-dashboard";
 import { staffSignOutAction } from "@/lib/staff/actions";
 
@@ -53,18 +58,26 @@ export default async function StaffPage() {
     );
   }
 
-  // Fetch live orders under staff RLS
-  const { orders, error } = await getStaffOrders();
+  // Fetch live orders & custom cake requests under staff RLS
+  const [ordersRes, customCakesRes] = await Promise.all([
+    getStaffOrders(),
+    getStaffCustomCakeRequests(),
+  ]);
+
+  const orders = ordersRes.orders;
   const summary = calculateOperationalSummary(orders);
 
-  if (error) {
+  const customCakeRequests = customCakesRes.requests;
+  const customCakeSummary = calculateCustomCakeSummary(customCakeRequests);
+
+  if (ordersRes.error && customCakesRes.error) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center p-4 bg-background">
         <div className="max-w-md w-full rounded-sm border border-destructive/40 bg-card p-6 text-center space-y-3">
           <p className="font-semibold text-destructive text-sm">
-            Failed to load staff orders
+            Failed to load dashboard data
           </p>
-          <p className="text-xs text-muted-foreground">{error}</p>
+          <p className="text-xs text-muted-foreground">{ordersRes.error}</p>
           <Link
             href="/staff"
             className="inline-block mt-2 h-9 px-4 rounded-sm bg-caramel text-white text-xs font-semibold leading-9"
@@ -80,6 +93,8 @@ export default async function StaffPage() {
     <StaffDashboard
       orders={orders}
       summary={summary}
+      customCakeRequests={customCakeRequests}
+      customCakeSummary={customCakeSummary}
       userEmail={session.user?.email}
       role={session.role}
     />

@@ -26,6 +26,12 @@ export function Header() {
           >
             Menu
           </Link>
+          <Link
+            href="/custom-cake"
+            className="flex h-11 items-center rounded-md px-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+          >
+            Custom Cakes
+          </Link>
           <HeaderCartButton />
           <div className="hidden items-center gap-2 border-l border-border pl-3 sm:flex">
             <span className="text-xs font-medium text-muted-foreground">

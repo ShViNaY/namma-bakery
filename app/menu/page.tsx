@@ -4,6 +4,7 @@ import { CategoryNav } from "@/components/menu/category-nav";
 import { ProductGrid } from "@/components/menu/product-grid";
 import { MenuEmptyState } from "@/components/menu/menu-empty-state";
 import { MenuErrorState } from "@/components/menu/menu-error-state";
+import { CustomCakeBanner } from "@/components/menu/custom-cake-banner";
 
 export const instant = false;
 
@@ -49,6 +50,9 @@ export default async function MenuPage() {
           <CategoryNav categories={categories} />
         </div>
       )}
+
+      {/* Custom Cake Enquiry Banner */}
+      <CustomCakeBanner />
 
       {/* Product Catalog */}
       {products.length === 0 ? (

@@ -268,6 +268,109 @@ assert(r1.allowed && r2.allowed && r3.allowed, "Allow requests within rate limit
 assert(!r4.allowed, "Block request exceeding maxRequests (4th attempt rejected)");
 assert(r4.retryAfterSeconds > 0, "Provide positive retryAfterSeconds when blocked");
 
+// --- 9. Custom Cake Validation & Security ---
+console.log("\n--- 9. Custom Cake Boundaries & File Constraints ---");
+
+import {
+  customCakeFormSchema,
+  validateReferenceImageFile,
+} from "../lib/custom-cake/validation";
+
+const validCustomCake = {
+  customerName: "Priya Sharma",
+  customerPhone: "9845012345",
+  customerEmail: "priya@example.com",
+  cakeType: "Birthday Celebration",
+  flavour: "Dutch Chocolate Truffle",
+  eggType: "EGGLESS" as const,
+  weightGrams: 1500,
+  shape: "Round",
+  preferredPickupDate: "2026-10-25",
+  preferredPickupTime: "2:00 PM – 4:00 PM",
+  description: "Peppa pig themed 2-tier cake with pastel clouds and rainbow piping",
+  messageOnCake: "Happy 3rd Birthday Anaya!",
+  additionalNotes: "Less sugar in frosting please",
+};
+
+assert(
+  customCakeFormSchema.safeParse(validCustomCake).success,
+  "Valid custom cake baseline accepted"
+);
+
+assert(
+  !customCakeFormSchema.safeParse({ ...validCustomCake, customerName: "P" }).success,
+  "Reject custom cake customer name < 2 characters"
+);
+
+assert(
+  !customCakeFormSchema.safeParse({ ...validCustomCake, customerPhone: "12345" }).success,
+  "Reject custom cake invalid phone number"
+);
+
+assert(
+  !customCakeFormSchema.safeParse({ ...validCustomCake, description: "cake" }).success,
+  "Reject custom cake description < 10 characters"
+);
+
+assert(
+  !customCakeFormSchema.safeParse({ ...validCustomCake, weightGrams: 100 }).success,
+  "Reject custom cake weight below 250 grams"
+);
+
+assert(
+  !customCakeFormSchema.safeParse({ ...validCustomCake, weightGrams: 25000 }).success,
+  "Reject custom cake weight above 20,000 grams"
+);
+
+assert(
+  !customCakeFormSchema.safeParse({
+    ...validCustomCake,
+    messageOnCake: "A".repeat(61),
+  }).success,
+  "Reject custom cake message > 60 characters"
+);
+
+assert(
+  !customCakeFormSchema.safeParse({
+    ...validCustomCake,
+    injectedPrice: 500,
+  }).success,
+  "Reject custom cake payload with injected pricing fields (.strict())"
+);
+
+// File validation checks
+assert(
+  validateReferenceImageFile(null).valid,
+  "Allow null reference image file (optional upload)"
+);
+
+const fakeValidFile = {
+  size: 2 * 1024 * 1024,
+  type: "image/jpeg",
+} as File;
+assert(
+  validateReferenceImageFile(fakeValidFile).valid,
+  "Allow valid JPEG file under 5MB"
+);
+
+const fakeOversizedFile = {
+  size: 6 * 1024 * 1024,
+  type: "image/png",
+} as File;
+assert(
+  !validateReferenceImageFile(fakeOversizedFile).valid,
+  "Reject oversized reference photo (> 5MB)"
+);
+
+const fakeInvalidMimeFile = {
+  size: 1024 * 1024,
+  type: "application/pdf",
+} as File;
+assert(
+  !validateReferenceImageFile(fakeInvalidMimeFile).valid,
+  "Reject disallowed MIME type (e.g. PDF/executable)"
+);
+
 console.log("\n========================================================");
 console.log(`TEST SUMMARY: ${passedCount} PASSED, ${failedCount} FAILED`);
 console.log("========================================================\n");
