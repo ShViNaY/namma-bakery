@@ -203,3 +203,74 @@
   min-height: 48px;
   min-width: 48px;
 }
+
+/* -------------------------------------------------------------
+   Bakery Editorial Motion System
+   Warm, restrained, handcrafted motion tailored for Namma Bakery
+   ------------------------------------------------------------- */
+
+@keyframes bakery-fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bakery-image-reveal {
+  0% {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-hero-badge {
+  animation: bakery-fade-up 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 50ms;
+}
+
+.animate-hero-title {
+  animation: bakery-fade-up 750ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 150ms;
+}
+
+.animate-hero-text {
+  animation: bakery-fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 260ms;
+}
+
+.animate-hero-cta {
+  animation: bakery-fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 380ms;
+}
+
+.animate-hero-meta {
+  animation: bakery-fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 500ms;
+}
+
+.animate-hero-image {
+  animation: bakery-image-reveal 1000ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 180ms;
+}
+
+/* Accessibility: Full reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .animate-hero-badge,
+  .animate-hero-title,
+  .animate-hero-text,
+  .animate-hero-cta,
+  .animate-hero-meta,
+  .animate-hero-image {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

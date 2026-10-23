@@ -42,17 +42,17 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       href={`/menu/${categorySlug}/${product.slug}`}
-      className="group flex flex-col overflow-hidden rounded-sm border border-border bg-card transition-colors hover:border-caramel/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+      className="group flex flex-col overflow-hidden rounded-sm border border-border bg-card transition-all duration-300 hover:border-caramel/60 hover:shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
     >
       {/* Visual Header / Image Placeholder */}
-      <div className="relative flex aspect-4/3 w-full items-center justify-center overflow-hidden border-b border-border bg-secondary/50 text-caramel/70 transition-colors group-hover:bg-secondary/70">
+      <div className="relative flex aspect-4/3 w-full items-center justify-center overflow-hidden border-b border-border bg-secondary/50 text-caramel/70 transition-colors duration-300 group-hover:bg-secondary/70">
         {imageUrl ? (
           <Image
             src={imageUrl}
             alt={primaryImage?.alt_text || product.name}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className="object-cover transition-transform duration-500 ease-out sm:group-hover:scale-[1.025]"
           />
         ) : (
           <div className="p-6">

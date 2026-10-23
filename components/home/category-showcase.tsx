@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Cake, UtensilsCrossed, Pizza, Soup } from "lucide-react";
 import type { Category } from "@/lib/menu/types";
+import { ScrollReveal } from "@/components/ui/scroll-reveal";
 
 interface CategoryShowcaseProps {
   categories: Category[];
@@ -28,62 +29,66 @@ export function CategoryShowcase({ categories }: CategoryShowcaseProps) {
   return (
     <section className="border-b border-border py-12 sm:py-16">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-          <div>
-            <span className="font-kannada text-xs font-medium text-caramel">
-              ಬೇಕರಿ ಮೆನು
-            </span>
-            <h2 className="font-heading text-2xl font-semibold text-foreground sm:text-3xl">
-              Browse by Category
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Handcrafted cakes, warm savoury bakes, and neighbourhood snacks.
-            </p>
+        <ScrollReveal>
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <span className="font-kannada text-xs font-medium text-caramel">
+                ಬೇಕರಿ ಮೆನು
+              </span>
+              <h2 className="font-heading text-2xl font-semibold text-foreground sm:text-3xl">
+                Browse by Category
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Handcrafted cakes, warm savoury bakes, and neighbourhood snacks.
+              </p>
+            </div>
+            <Link
+              href="/menu"
+              className="inline-flex min-h-[48px] items-center gap-1.5 text-sm font-medium text-caramel transition-colors hover:text-caramel/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+            >
+              <span>View full menu</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
-          <Link
-            href="/menu"
-            className="inline-flex min-h-[48px] items-center gap-1.5 text-sm font-medium text-caramel transition-colors hover:text-caramel/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
-          >
-            <span>View full menu</span>
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
+        </ScrollReveal>
 
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              href={`/menu/${category.slug}`}
-              className="group flex flex-col justify-between rounded-sm border border-border bg-card p-5 transition-all hover:border-caramel/60 hover:bg-card/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-secondary text-caramel transition-colors group-hover:bg-caramel group-hover:text-primary-foreground">
-                  {getCategoryIcon(category.slug)}
+          {categories.map((category, index) => (
+            <ScrollReveal key={category.id} delayMs={index * 70}>
+              <Link
+                href={`/menu/${category.slug}`}
+                className="group flex flex-col justify-between rounded-sm border border-border bg-card p-5 h-full transition-all duration-300 hover:border-caramel/60 hover:bg-card/95 hover:shadow-xs sm:hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-secondary text-caramel transition-colors duration-300 group-hover:bg-caramel group-hover:text-primary-foreground">
+                    {getCategoryIcon(category.slug)}
+                  </div>
+                  {category.name_kn && (
+                    <span className="font-kannada text-xs text-muted-foreground">
+                      {category.name_kn}
+                    </span>
+                  )}
                 </div>
-                {category.name_kn && (
-                  <span className="font-kannada text-xs text-muted-foreground">
-                    {category.name_kn}
-                  </span>
-                )}
-              </div>
 
-              <div className="mt-6">
-                <h3 className="font-heading text-lg font-semibold text-foreground group-hover:text-caramel">
-                  {category.name}
-                </h3>
-                <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-                  {category.description ?? "Freshly prepared every day at our bakery."}
-                </p>
-              </div>
+                <div className="mt-6">
+                  <h3 className="font-heading text-lg font-semibold text-foreground transition-colors duration-200 group-hover:text-caramel">
+                    {category.name}
+                  </h3>
+                  <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                    {category.description ?? "Freshly prepared every day at our bakery."}
+                  </p>
+                </div>
 
-              <div className="mt-4 flex min-h-[44px] items-center gap-1 text-xs font-medium text-caramel group-hover:underline">
-                <span>Explore items</span>
-                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+                <div className="mt-4 flex min-h-[44px] items-center gap-1 text-xs font-medium text-caramel">
+                  <span>Explore items</span>
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-out group-hover:translate-x-1" />
+                </div>
+              </Link>
+            </ScrollReveal>
           ))}
         </div>
       </div>
     </section>
   );
 }
+

@@ -1,9 +1,35 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { HeaderCartButton } from "./header-cart-button";
+import { cn } from "@/lib/utils";
 
 export function Header() {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 15);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur-sm">
+    <header
+      className={cn(
+        "sticky top-0 z-40 w-full transition-all duration-300",
+        isScrolled
+          ? "border-b border-border bg-background/95 backdrop-blur-md shadow-2xs"
+          : "border-b border-border/40 bg-background/80 backdrop-blur-xs"
+      )}
+    >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         {/* Brand identity */}
         <Link
