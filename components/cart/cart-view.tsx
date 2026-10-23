@@ -289,18 +289,31 @@ export function CartView() {
               </p>
             </div>
 
-            {/* Next Step Notice (Checkout is Step 3.5) */}
+            {/* Proceed to Checkout Action */}
             <div className="mt-6 flex flex-col gap-2.5">
+              {pickupDate && pickupSlot ? (
+                <Link
+                  href="/checkout"
+                  className="flex h-12 w-full items-center justify-center rounded-sm bg-caramel text-sm font-semibold text-white shadow-sm transition-colors hover:bg-caramel/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                >
+                  Proceed to Checkout →
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className="flex h-12 w-full items-center justify-center rounded-sm bg-muted text-sm font-semibold text-muted-foreground cursor-not-allowed"
+                >
+                  Select a Pickup Slot to Continue
+                </button>
+              )}
+
               <Link
                 href="/menu"
-                className="flex h-11 w-full items-center justify-center rounded-sm border border-caramel bg-transparent text-sm font-semibold text-caramel transition-colors hover:bg-caramel/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                className="flex h-11 w-full items-center justify-center rounded-sm border border-border bg-card text-xs font-semibold text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
               >
                 Add More Items
               </Link>
-
-              <div className="rounded-sm border border-dashed border-border p-3 text-center text-xs text-muted-foreground">
-                Pickup slot scheduling is active. Checkout and order placement will be unlocked in Step 3.5.
-              </div>
             </div>
           </div>
         </div>
