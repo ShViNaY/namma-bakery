@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import type { Category, Product, ProductKind } from "./types";
 
@@ -79,43 +80,47 @@ export async function getMenuCategories(): Promise<{
 /**
  * Resolves a single category by its URL slug.
  */
-export async function getCategoryBySlug(slug: string): Promise<{
-  data: Category | null;
-  error: Error | null;
-}> {
-  try {
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from("categories")
-      .select(
-        "id, slug, name, name_kn, description, image_path, sort_order, is_visible, archived_at"
-      )
-      .eq("slug", slug)
-      .eq("is_visible", true)
-      .is("archived_at", null)
-      .maybeSingle();
+export const getCategoryBySlug = cache(
+  async (
+    slug: string
+  ): Promise<{
+    data: Category | null;
+    error: Error | null;
+  }> => {
+    try {
+      const supabase = await createClient();
+      const { data, error } = await supabase
+        .from("categories")
+        .select(
+          "id, slug, name, name_kn, description, image_path, sort_order, is_visible, archived_at"
+        )
+        .eq("slug", slug)
+        .eq("is_visible", true)
+        .is("archived_at", null)
+        .maybeSingle();
 
-    if (error) {
+      if (error) {
+        console.error(
+          `[getCategoryBySlug] Supabase query error for slug "${slug}":`,
+          error.message
+        );
+        return { data: null, error: new Error(error.message) };
+      }
+
+      return { data: (data as Category) ?? null, error: null };
+    } catch (err) {
       console.error(
-        `[getCategoryBySlug] Supabase query error for slug "${slug}":`,
-        error.message
+        `[getCategoryBySlug] Connection/execution failure for slug "${slug}":`,
+        err
       );
-      return { data: null, error: new Error(error.message) };
+      return {
+        data: null,
+        error:
+          err instanceof Error ? err : new Error("Failed to load category"),
+      };
     }
-
-    return { data: (data as Category) ?? null, error: null };
-  } catch (err) {
-    console.error(
-      `[getCategoryBySlug] Connection/execution failure for slug "${slug}":`,
-      err
-    );
-    return {
-      data: null,
-      error:
-        err instanceof Error ? err : new Error("Failed to load category"),
-    };
   }
-}
+);
 
 /**
  * Fetches products for the public menu, optionally filtered by category.
@@ -228,13 +233,14 @@ export async function getMenuProducts(options?: {
 /**
  * Fetches a single active product by its slug and ensures it belongs to the specified category.
  */
-export async function getProductBySlug(
-  categorySlug: string,
-  productSlug: string
-): Promise<{
-  data: Product | null;
-  error: Error | null;
-}> {
+export const getProductBySlug = cache(
+  async (
+    categorySlug: string,
+    productSlug: string
+  ): Promise<{
+    data: Product | null;
+    error: Error | null;
+  }> => {
   try {
     const supabase = await createClient();
 
@@ -350,4 +356,5 @@ export async function getProductBySlug(
     };
   }
 }
+);
 

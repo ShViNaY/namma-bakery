@@ -52,8 +52,10 @@ export async function generateMetadata({
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { category: slug } = await params;
 
-  const categoryResult = await getCategoryBySlug(slug);
-  const categoriesResult = await getMenuCategories();
+  const [categoryResult, categoriesResult] = await Promise.all([
+    getCategoryBySlug(slug),
+    getMenuCategories(),
+  ]);
 
   if (categoryResult.error) {
     return (

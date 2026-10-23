@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   CheckCircle2,
   Calendar,
@@ -232,12 +233,15 @@ export function CustomCakeConfirmation({ request }: CustomCakeConfirmationProps)
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block">
               Submitted Reference Photo
             </span>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={request.reference_image_url}
-              alt="Reference cake design"
-              className="size-48 object-cover rounded-sm border border-border"
-            />
+            <div className="relative size-48 overflow-hidden rounded-sm border border-border bg-muted/20">
+              <Image
+                src={request.reference_image_url}
+                alt="Submitted custom cake reference design"
+                fill
+                sizes="192px"
+                className="object-cover"
+              />
+            </div>
           </div>
         )}
       </div>

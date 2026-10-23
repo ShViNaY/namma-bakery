@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Cake, Clock, UtensilsCrossed, Soup } from "lucide-react";
 import type { Product } from "@/lib/menu/types";
 import { formatPaise } from "@/lib/utils/money";
@@ -27,14 +28,37 @@ export function ProductCard({ product }: ProductCardProps) {
   const isCake = product.kind === "TIERED_CAKE";
   const categorySlug = product.category?.slug ?? "cakes";
 
+  const primaryImage =
+    product.product_images?.find((img) => img.is_primary) ??
+    product.product_images?.[0];
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const imageUrl = primaryImage
+    ? primaryImage.storage_path.startsWith("http")
+      ? primaryImage.storage_path
+      : `${supabaseUrl}/storage/v1/object/public/product-images/${primaryImage.storage_path}`
+    : null;
+
   return (
     <Link
       href={`/menu/${categorySlug}/${product.slug}`}
       className="group flex flex-col overflow-hidden rounded-sm border border-border bg-card transition-colors hover:border-caramel/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
     >
       {/* Visual Header / Image Placeholder */}
-      <div className="relative flex aspect-4/3 w-full items-center justify-center border-b border-border bg-secondary/50 p-6 text-caramel/70 transition-colors group-hover:bg-secondary/70">
-        {renderPlaceholderIcon(product.kind, product.category?.slug)}
+      <div className="relative flex aspect-4/3 w-full items-center justify-center overflow-hidden border-b border-border bg-secondary/50 text-caramel/70 transition-colors group-hover:bg-secondary/70">
+        {imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt={primaryImage?.alt_text || product.name}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="p-6">
+            {renderPlaceholderIcon(product.kind, product.category?.slug)}
+          </div>
+        )}
 
         {/* Badges */}
         <div className="absolute top-2 left-2 flex flex-wrap gap-1.5">

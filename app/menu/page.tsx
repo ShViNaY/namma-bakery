@@ -24,8 +24,10 @@ export const metadata: Metadata = {
 };
 
 export default async function MenuPage() {
-  const categoriesResult = await getMenuCategories();
-  const productsResult = await getMenuProducts();
+  const [categoriesResult, productsResult] = await Promise.all([
+    getMenuCategories(),
+    getMenuProducts(),
+  ]);
 
   if (categoriesResult.error || productsResult.error) {
     return (
