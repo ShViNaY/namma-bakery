@@ -2,28 +2,27 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   AlertCircle,
   ArrowLeft,
-  CheckCircle2,
-  Edit2,
+  Loader2,
   ShieldCheck,
   ShoppingBag,
 } from "lucide-react";
 import { useCart } from "@/lib/cart/context";
-import { formatPaise } from "@/lib/utils/money";
-import { formatPickupSelectionSummary } from "@/lib/pickup/utils";
 import {
   customerDetailsSchema,
-  type CustomerDetailsFormData,
   type CustomerDetailsFormInput,
 } from "@/lib/checkout/validation";
+import { placeOrderAction } from "@/lib/orders/actions";
 import { CustomerDetailsForm } from "./customer-details-form";
 import { CheckoutPickupSummary } from "./checkout-pickup-summary";
 import { PaymentMethodNote } from "./payment-method-note";
 import { CheckoutOrderSummary } from "./checkout-order-summary";
 
 export function CheckoutForm() {
+  const router = useRouter();
   const {
     items,
     itemCount,
@@ -32,6 +31,7 @@ export function CheckoutForm() {
     isHydrated,
     pickupDate,
     pickupSlot,
+    clearCart,
   } = useCart();
 
   const [formData, setFormData] = React.useState<CustomerDetailsFormInput>({
@@ -45,10 +45,8 @@ export function CheckoutForm() {
     Partial<Record<keyof CustomerDetailsFormInput, string>>
   >({});
 
-  const [validatedData, setValidatedData] =
-    React.useState<CustomerDetailsFormData | null>(null);
-
-  const [isReviewMode, setIsReviewMode] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
 
   const handleFieldChange = React.useCallback(
     (field: keyof CustomerDetailsFormInput, value: string) => {
@@ -60,18 +58,25 @@ export function CheckoutForm() {
         delete next[field];
         return next;
       });
-      // If user edits, dismiss the reviewed confirmation state
-      if (isReviewMode) {
-        setIsReviewMode(false);
+      if (submitError) {
+        setSubmitError(null);
       }
     },
-    [isReviewMode]
+    [submitError]
   );
 
-  const handleValidateAndReview = (e: React.FormEvent) => {
+  const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 1. Validate customer details
+    if (isSubmitting) return;
+
+    // 1. Guard against empty cart or missing pickup slot
+    if (isEmpty || !pickupSlot?.slotStart) {
+      setSubmitError("Please ensure you have items and a pickup slot selected.");
+      return;
+    }
+
+    // 2. Validate customer details
     const result = customerDetailsSchema.safeParse(formData);
 
     if (!result.success) {
@@ -84,9 +89,8 @@ export function CheckoutForm() {
         }
       }
       setErrors(fieldErrors);
-      setIsReviewMode(false);
 
-      // Scroll to first invalid input
+      // Focus first invalid input
       const firstErrorField = Object.keys(fieldErrors)[0];
       if (firstErrorField) {
         const element = document.getElementById(firstErrorField);
@@ -96,11 +100,53 @@ export function CheckoutForm() {
     }
 
     setErrors({});
-    setValidatedData(result.data);
-    setIsReviewMode(true);
+    setSubmitError(null);
+    setIsSubmitting(true);
 
-    // Scroll smoothly to the review card
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    try {
+      // 3. Prepare payload for server-side verification and order placement
+      const itemsPayload = items.map((item) => ({
+        productId: item.productId,
+        kind: item.kind,
+        variantId: item.variantId,
+        quantity: item.quantity,
+        cakeConfig: item.configuration
+          ? {
+              weightGrams: item.configuration.weightGrams,
+              eggType: item.configuration.eggType,
+              finish: item.configuration.finish,
+            }
+          : undefined,
+        cakeMessage:
+          item.kind === "TIERED_CAKE" && result.data.customerNotes
+            ? result.data.customerNotes.slice(0, 60)
+            : undefined,
+      }));
+
+      const actionResult = await placeOrderAction({
+        customerDetails: result.data,
+        pickupSlotStart: pickupSlot.slotStart,
+        items: itemsPayload,
+      });
+
+      if (!actionResult.success) {
+        setSubmitError(actionResult.error);
+        setIsSubmitting(false);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+
+      // 4. On confirmed success: clear cart state and redirect to order tracking route
+      clearCart();
+      router.push(`/orders/${actionResult.publicToken}?confirmed=true`);
+    } catch (err) {
+      console.error("[CheckoutForm] Submission failed:", err);
+      setSubmitError(
+        "A connection issue occurred while submitting your order. Please check your network and try again."
+      );
+      setIsSubmitting(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   // SSR / Hydration placeholder
@@ -161,15 +207,30 @@ export function CheckoutForm() {
       {/* Page Title */}
       <div className="mb-8 border-b border-border pb-6">
         <span className="font-kannada text-xs font-medium text-caramel block">
-          ಆರ್ಡರ್ ಪರಿಶೀಲನೆ
+          ಆರ್ಡರ್ ಪರಿಶೀಲನೆ ಮತ್ತು ದೃಢೀಕರಣ
         </span>
         <h1 className="mt-1 font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
           Bakery Checkout
         </h1>
         <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground">
-          Review your order details and provide contact information for store pickup.
+          Review your order details and provide contact information for store pickup in RR Nagar.
         </p>
       </div>
+
+      {/* Submission Error Banner */}
+      {submitError && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="mb-8 flex items-start gap-3 rounded-sm border border-destructive/40 bg-destructive/10 p-4 text-xs text-destructive dark:bg-destructive/20 sm:text-sm animate-in fade-in"
+        >
+          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" aria-hidden="true" />
+          <div className="space-y-1">
+            <p className="font-semibold">Unable to place order</p>
+            <p className="leading-relaxed text-destructive/90">{submitError}</p>
+          </div>
+        </div>
+      )}
 
       {/* Missing Pickup Alert */}
       {!isPickupValid && (
@@ -183,7 +244,7 @@ export function CheckoutForm() {
               Pickup slot selection is required
             </p>
             <p className="leading-relaxed">
-              You must select an available pickup date and time slot before your order can be reviewed or placed.
+              You must select an available pickup date and time slot before your order can be placed.
             </p>
             <Link
               href="/cart"
@@ -195,85 +256,8 @@ export function CheckoutForm() {
         </div>
       )}
 
-      {/* Review Mode Banner */}
-      {isReviewMode && validatedData && isPickupValid && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="mb-8 rounded-sm border border-emerald-300 bg-emerald-50/80 p-5 text-emerald-950 dark:border-emerald-900/60 dark:bg-emerald-950/20 dark:text-emerald-200 space-y-3 animate-in fade-in"
-        >
-          <div className="flex items-center gap-2.5">
-            <CheckCircle2 className="h-5 w-5 text-emerald-700 dark:text-emerald-400 shrink-0" />
-            <h2 className="font-heading text-lg font-bold">
-              Checkout Details Verified &amp; Ready
-            </h2>
-          </div>
-
-          <p className="text-xs leading-relaxed text-emerald-900/90 dark:text-emerald-300/90">
-            All customer details, pickup time slot, and order items have been validated.
-            You are ready for the next step.
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-emerald-200/80 pt-3 text-xs">
-            <div>
-              <span className="text-emerald-800/80 font-medium block text-[11px] uppercase">
-                Customer
-              </span>
-              <span className="font-semibold">{validatedData.customerName}</span>
-              <span className="block text-[11px] text-muted-foreground">
-                +91 {validatedData.customerPhone}
-              </span>
-            </div>
-
-            <div>
-              <span className="text-emerald-800/80 font-medium block text-[11px] uppercase">
-                Scheduled Pickup
-              </span>
-              <span className="font-semibold">
-                {formatPickupSelectionSummary(pickupDate!)}
-              </span>
-              <span className="block text-[11px] text-caramel font-medium">
-                {pickupSlot?.formattedTime}
-              </span>
-            </div>
-
-            <div>
-              <span className="text-emerald-800/80 font-medium block text-[11px] uppercase">
-                Payment
-              </span>
-              <span className="font-semibold">Pay at Bakery</span>
-              <span className="block text-[11px] text-muted-foreground">
-                Total: {formatPaise(subtotalPaise)}
-              </span>
-            </div>
-          </div>
-
-          {validatedData.customerNotes && (
-            <div className="border-t border-emerald-200/60 pt-2 text-[11px]">
-              <span className="font-semibold text-emerald-900">Notes / Cake Message:</span>{" "}
-              <span>{validatedData.customerNotes}</span>
-            </div>
-          )}
-
-          <div className="border-t border-emerald-300/80 pt-3 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs font-medium text-emerald-800">
-              <ShieldCheck className="h-4 w-4" />
-              <span>Step 3.5 Complete — Ready for Order Placement in Step 3.6</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsReviewMode(false)}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 underline hover:text-emerald-950 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-700"
-            >
-              <Edit2 className="h-3 w-3" />
-              <span>Edit Details</span>
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Main Grid: Form on left, Summary on right */}
-      <form onSubmit={handleValidateAndReview} noValidate>
+      <form onSubmit={handleSubmitOrder} noValidate>
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
           {/* Left Column: Customer details, Pickup details, Payment notice */}
           <div className="lg:col-span-7 space-y-6">
@@ -297,25 +281,35 @@ export function CheckoutForm() {
             <div className="rounded-sm border border-border bg-card p-5 sm:p-6 space-y-4">
               <button
                 type="submit"
-                disabled={!isPickupValid}
-                className={`flex h-12 w-full items-center justify-center rounded-sm text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel ${
-                  isPickupValid
+                disabled={!isPickupValid || isSubmitting}
+                className={`flex h-12 w-full items-center justify-center gap-2 rounded-sm text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel ${
+                  isPickupValid && !isSubmitting
                     ? "bg-caramel text-white shadow-sm hover:bg-caramel/90 active:scale-[0.99]"
                     : "cursor-not-allowed bg-muted text-muted-foreground"
                 }`}
               >
-                <span>
-                  {!isPickupValid
-                    ? "Select Pickup Slot to Continue"
-                    : isReviewMode
-                    ? "Order Details Verified ✓"
-                    : "Review & Confirm Order Details"}
-                </span>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                    <span>Placing Order with Bakery...</span>
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag className="h-4 w-4" aria-hidden="true" />
+                    <span>
+                      {!isPickupValid
+                        ? "Select Pickup Slot to Continue"
+                        : "Place Order (Pay at Bakery)"}
+                    </span>
+                  </>
+                )}
               </button>
 
-              <div className="rounded-sm border border-dashed border-border p-3 text-center text-xs text-muted-foreground">
-                <span className="font-semibold text-foreground">Next Step Notice:</span>{" "}
-                Actual order submission and confirmation tracking will be enabled in Step 3.6.
+              <div className="flex items-center justify-center gap-2 text-center text-xs text-muted-foreground">
+                <ShieldCheck className="h-4 w-4 text-caramel/70 shrink-0" aria-hidden="true" />
+                <span>
+                  No payment required right now. Pay when you collect at the bakery counter.
+                </span>
               </div>
             </div>
           </div>

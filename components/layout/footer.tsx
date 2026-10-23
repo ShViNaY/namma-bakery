@@ -63,10 +63,10 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/menu/sandwiches"
+                  href="/orders"
                   className="text-muted-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
                 >
-                  Fresh Sandwiches
+                  Track Order
                 </Link>
               </li>
             </ul>
