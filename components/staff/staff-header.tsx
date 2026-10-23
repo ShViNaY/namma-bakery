@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   RotateCcw,
   LogOut,
@@ -102,6 +103,18 @@ export function StaffHeader({
                 {role || "STAFF"}
               </span>
             </div>
+
+            {/* Admin Portal shortcut for ADMIN users */}
+            {role === "ADMIN" && (
+              <Link
+                href="/admin"
+                className="hidden md:inline-flex items-center gap-1.5 h-8 px-2.5 rounded-sm border border-amber-300 bg-amber-50 text-amber-900 text-xs font-semibold hover:bg-amber-100 transition-colors dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200"
+                title="Go to Admin Portal"
+              >
+                <ShieldCheck className="size-3.5 text-amber-700 dark:text-amber-400" />
+                <span>Admin Portal</span>
+              </Link>
+            )}
 
             {/* Refresh Action */}
             <button

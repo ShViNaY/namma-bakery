@@ -11,7 +11,16 @@
  */
 
 import { placeOrderInputSchema, lookupOrderTokenSchema } from "../lib/orders/validation";
+import { customCakeFormSchema, validateReferenceImageFile } from "../lib/custom-cake/validation";
 import { checkRateLimit } from "../lib/security/rate-limiter";
+import {
+  adminCategorySchema,
+  adminProductSchema,
+  adminVariantSchema,
+  adminPriceTierRuleSchema,
+  adminStoreSettingsSchema,
+  adminStaffRoleSchema,
+} from "../lib/admin/validation";
 
 let passedCount = 0;
 let failedCount = 0;
@@ -271,11 +280,6 @@ assert(r4.retryAfterSeconds > 0, "Provide positive retryAfterSeconds when blocke
 // --- 9. Custom Cake Validation & Security ---
 console.log("\n--- 9. Custom Cake Boundaries & File Constraints ---");
 
-import {
-  customCakeFormSchema,
-  validateReferenceImageFile,
-} from "../lib/custom-cake/validation";
-
 const validCustomCake = {
   customerName: "Priya Sharma",
   customerPhone: "9845012345",
@@ -369,6 +373,174 @@ const fakeInvalidMimeFile = {
 assert(
   !validateReferenceImageFile(fakeInvalidMimeFile).valid,
   "Reject disallowed MIME type (e.g. PDF/executable)"
+);
+
+// --- 10. Admin Area Validation & Security Boundaries (Step 6) ---
+console.log("\n--- 10. Admin Area Validation & Authorization Boundaries ---");
+
+// Categories
+const validCategory = {
+  name: "Signature Cakes",
+  name_kn: "ಸಿಗ್ನೇಚರ್ ಕೇಕ್ಗಳು",
+  slug: "signature-cakes",
+  description: "Handcrafted celebration bakes",
+  sort_order: 10,
+  is_visible: true,
+};
+assert(
+  adminCategorySchema.safeParse(validCategory).success,
+  "Admin: Accept valid category payload"
+);
+assert(
+  !adminCategorySchema.safeParse({ ...validCategory, name: "A" }).success,
+  "Admin: Reject category name < 2 characters"
+);
+assert(
+  !adminCategorySchema.safeParse({ ...validCategory, slug: "Invalid Slug with spaces" }).success,
+  "Admin: Reject malformed category slug with spaces/caps"
+);
+
+// Products
+const validSimpleProduct = {
+  category_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+  name: "Dilpasand",
+  slug: "dilpasand",
+  description: "Traditional coconut and tutti frutti pastry",
+  kind: "SIMPLE" as const,
+  price_tier_id: null,
+  is_available: true,
+  orderable_online: true,
+  requires_confirmation: false,
+  is_featured: true,
+  is_best_seller: false,
+  is_new_arrival: false,
+  is_seasonal: false,
+  lead_time_minutes: 60,
+  sort_order: 1,
+};
+assert(
+  adminProductSchema.safeParse(validSimpleProduct).success,
+  "Admin: Accept valid Simple product without price tier"
+);
+assert(
+  !adminProductSchema.safeParse({
+    ...validSimpleProduct,
+    price_tier_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+  }).success,
+  "Admin: Enforce database constraint: SIMPLE product cannot have price_tier_id"
+);
+
+const validTieredProduct = {
+  category_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+  name: "Black Forest Cake",
+  slug: "black-forest-cake",
+  kind: "TIERED_CAKE" as const,
+  price_tier_id: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
+  is_available: true,
+  orderable_online: true,
+  requires_confirmation: true,
+  is_featured: false,
+  is_best_seller: true,
+  is_new_arrival: false,
+  is_seasonal: false,
+  lead_time_minutes: 240,
+  sort_order: 2,
+};
+assert(
+  adminProductSchema.safeParse(validTieredProduct).success,
+  "Admin: Accept valid Tiered Cake with price tier"
+);
+assert(
+  !adminProductSchema.safeParse({
+    ...validTieredProduct,
+    price_tier_id: null,
+  }).success,
+  "Admin: Enforce database constraint: TIERED_CAKE must have a price_tier_id"
+);
+
+// Variants
+const validVariant = {
+  product_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+  label: "Pack of 4",
+  price_paise: 16000,
+  is_available: true,
+  sort_order: 10,
+};
+assert(
+  adminVariantSchema.safeParse(validVariant).success,
+  "Admin: Accept valid variant with integer paise"
+);
+assert(
+  !adminVariantSchema.safeParse({ ...validVariant, price_paise: -100 }).success,
+  "Admin: Reject variant with negative price"
+);
+assert(
+  !adminVariantSchema.safeParse({ ...validVariant, price_paise: 0 }).success,
+  "Admin: Reject variant with zero price"
+);
+assert(
+  !adminVariantSchema.safeParse({ ...validVariant, price_paise: 150.5 }).success,
+  "Admin: Enforce integer paise (reject floating point prices)"
+);
+
+// Cake Price Tier Rules
+const validTierRule = {
+  tier_id: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
+  weight_grams: 1000,
+  egg_type: "EGGLESS" as const,
+  finish: "STANDARD" as const,
+  price_paise: 75000,
+  is_active: true,
+};
+assert(
+  adminPriceTierRuleSchema.safeParse(validTierRule).success,
+  "Admin: Accept valid cake tier pricing rule"
+);
+assert(
+  !adminPriceTierRuleSchema.safeParse({ ...validTierRule, weight_grams: 0 }).success,
+  "Admin: Reject cake tier rule with weight <= 0"
+);
+
+// Store Settings
+const validStoreSettings = {
+  location_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+  slot_minutes: 30 as const,
+  max_orders_per_slot: 6,
+  max_custom_per_day: 4,
+  quote_validity_hours: 24,
+  cancel_cutoff_hours: 4,
+  pending_alert_minutes: 15,
+};
+assert(
+  adminStoreSettingsSchema.safeParse(validStoreSettings).success,
+  "Admin: Accept valid store slot & capacity settings"
+);
+assert(
+  !adminStoreSettingsSchema.safeParse({ ...validStoreSettings, slot_minutes: 45 as unknown as 15 }).success,
+  "Admin: Enforce valid slot_minutes enum (must be 15, 30, or 60)"
+);
+assert(
+  !adminStoreSettingsSchema.safeParse({ ...validStoreSettings, max_orders_per_slot: -1 }).success,
+  "Admin: Reject negative orders per slot"
+);
+
+// Staff Roles
+const validStaffUpdate = {
+  user_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+  role: "ADMIN" as const,
+  is_active: true,
+};
+assert(
+  adminStaffRoleSchema.safeParse(validStaffUpdate).success,
+  "Admin: Accept valid staff role update"
+);
+assert(
+  !adminStaffRoleSchema.safeParse({ ...validStaffUpdate, role: "SUPER_ADMIN" as unknown as "EMPLOYEE" }).success,
+  "Admin: Reject unsupported staff role value"
+);
+assert(
+  !adminStaffRoleSchema.safeParse({ ...validStaffUpdate, user_id: "not-a-uuid" }).success,
+  "Admin: Reject non-UUID staff user ID"
 );
 
 console.log("\n========================================================");
