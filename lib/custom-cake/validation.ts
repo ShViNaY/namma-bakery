@@ -102,3 +102,37 @@ export function validateReferenceImageFile(file: File | null): {
 
   return { valid: true };
 }
+
+/**
+ * Validates binary magic byte signatures to prevent file extension or MIME spoofing.
+ */
+export function validateImageMagicBytes(bytes: Uint8Array | Buffer): boolean {
+  if (!bytes || bytes.length < 12) return false;
+
+  // JPEG: FF D8 FF
+  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
+    return true;
+  }
+
+  // PNG: 89 50 4E 47
+  if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) {
+    return true;
+  }
+
+  // WebP: RIFF (bytes 0-3) and WEBP (bytes 8-11)
+  if (
+    bytes[0] === 0x52 &&
+    bytes[1] === 0x49 &&
+    bytes[2] === 0x46 &&
+    bytes[3] === 0x46 &&
+    bytes[8] === 0x57 &&
+    bytes[9] === 0x45 &&
+    bytes[10] === 0x42 &&
+    bytes[11] === 0x50
+  ) {
+    return true;
+  }
+
+  return false;
+}
+

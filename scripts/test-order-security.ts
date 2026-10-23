@@ -11,7 +11,11 @@
  */
 
 import { placeOrderInputSchema, lookupOrderTokenSchema } from "../lib/orders/validation";
-import { customCakeFormSchema, validateReferenceImageFile } from "../lib/custom-cake/validation";
+import {
+  customCakeFormSchema,
+  validateReferenceImageFile,
+  validateImageMagicBytes,
+} from "../lib/custom-cake/validation";
 import { checkRateLimit } from "../lib/security/rate-limiter";
 import {
   adminCategorySchema,
@@ -542,6 +546,33 @@ assert(
   !adminStaffRoleSchema.safeParse({ ...validStaffUpdate, user_id: "not-a-uuid" }).success,
   "Admin: Reject non-UUID staff user ID"
 );
+
+// --- 7. File Upload & Magic Bytes Verification ---
+console.log("\n--- 7. File Upload Magic Bytes Security ---");
+
+const fakeJpeg = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01]);
+const fakePng = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d]);
+const fakeWebp = Buffer.from([0x52, 0x49, 0x46, 0x46, 0x24, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50]);
+const maliciousHtml = Buffer.from("<script>alert('xss')</script>");
+
+assert(validateImageMagicBytes(fakeJpeg), "File Upload: Accept valid JPEG binary signature");
+assert(validateImageMagicBytes(fakePng), "File Upload: Accept valid PNG binary signature");
+assert(validateImageMagicBytes(fakeWebp), "File Upload: Accept valid WebP binary signature");
+assert(!validateImageMagicBytes(maliciousHtml), "File Upload: Reject HTML/script disguised as image");
+assert(!validateImageMagicBytes(Buffer.from([0x00, 0x01])), "File Upload: Reject truncated buffer (<12 bytes)");
+
+// --- 8. Staff Authentication Rate Limiting ---
+console.log("\n--- 8. Staff Authentication Brute Force Rate Limiting ---");
+const staffKey = `staff_login:ip:192.168.1.100`;
+const staffMax = 5;
+const staffWindow = 5 * 60 * 1000;
+
+for (let i = 0; i < staffMax; i++) {
+  checkRateLimit({ key: staffKey, maxRequests: staffMax, windowMs: staffWindow });
+}
+const staffBlocked = checkRateLimit({ key: staffKey, maxRequests: staffMax, windowMs: staffWindow });
+assert(!staffBlocked.allowed, "Staff Login: Reject 6th login attempt within 5 minutes (brute-force defense)");
+
 
 console.log("\n========================================================");
 console.log(`TEST SUMMARY: ${passedCount} PASSED, ${failedCount} FAILED`);

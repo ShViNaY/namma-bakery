@@ -6,6 +6,7 @@ import { checkRateLimit, getClientIp } from "@/lib/security/rate-limiter";
 import {
   customCakeFormSchema,
   validateReferenceImageFile,
+  validateImageMagicBytes,
 } from "./validation";
 import type { CustomCakePublicView } from "./types";
 
@@ -207,26 +208,32 @@ export async function submitCustomCakeRequestAction(
       try {
         const fileBytes = await imageFile.arrayBuffer();
         const buffer = Buffer.from(fileBytes);
-        const ext = imageFile.type === "image/png" ? "png" : imageFile.type === "image/webp" ? "webp" : "jpg";
-        const storagePath = `requests/${requestId}/${crypto.randomUUID()}.${ext}`;
 
-        const { error: uploadError } = await supabase.storage
-          .from("cake-references")
-          .upload(storagePath, buffer, {
-            contentType: imageFile.type,
-            upsert: false,
-          });
-
-        if (uploadError) {
-          console.error("[submitCustomCakeRequestAction] Image upload failed:", uploadError.message);
+        // Verify magic bytes header
+        if (!validateImageMagicBytes(buffer)) {
+          console.warn("[submitCustomCakeRequestAction] Image upload rejected: invalid file signature.");
         } else {
-          // Record image reference in custom_cake_images table
-          await supabase.from("custom_cake_images").insert({
-            request_id: requestId,
-            storage_path: storagePath,
-            mime_type: imageFile.type,
-            size_bytes: imageFile.size,
-          });
+          const ext = imageFile.type === "image/png" ? "png" : imageFile.type === "image/webp" ? "webp" : "jpg";
+          const storagePath = `requests/${requestId}/${crypto.randomUUID()}.${ext}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from("cake-references")
+            .upload(storagePath, buffer, {
+              contentType: imageFile.type,
+              upsert: false,
+            });
+
+          if (uploadError) {
+            console.error("[submitCustomCakeRequestAction] Image upload failed:", uploadError.message);
+          } else {
+            // Record image reference in custom_cake_images table
+            await supabase.from("custom_cake_images").insert({
+              request_id: requestId,
+              storage_path: storagePath,
+              mime_type: imageFile.type,
+              size_bytes: imageFile.size,
+            });
+          }
         }
       } catch (imgErr) {
         console.error("[submitCustomCakeRequestAction] Image handling error:", imgErr);

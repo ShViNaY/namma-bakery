@@ -43,7 +43,10 @@ export async function updateCustomCakeStatusAction(params: {
             error: "A note or explanation is required for this status change.",
           };
         }
-        return { success: false, error: error.message };
+        return {
+          success: false,
+          error: "Failed to update custom cake status. Please try again.",
+        };
       }
     } else {
       // Direct administrative update (e.g. manual confirmation or cancellation)
@@ -143,6 +146,15 @@ export async function getCustomCakeSignedUrlAction(
     const session = await requireStaffSession();
     if (!session.isStaff) {
       return { success: false, error: "Unauthorized: Staff privileges required." };
+    }
+
+    if (
+      !storagePath ||
+      typeof storagePath !== "string" ||
+      !storagePath.startsWith("requests/") ||
+      storagePath.includes("..")
+    ) {
+      return { success: false, error: "Invalid reference image path." };
     }
 
     const adminClient = createAdminClient();

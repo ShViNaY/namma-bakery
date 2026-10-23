@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit, getClientIp } from "@/lib/security/rate-limiter";
 import { requireStaffSession } from "./auth";
 import type { OrderStatus } from "@/lib/orders/types";
 
@@ -23,6 +24,20 @@ export async function staffLoginAction(
 
   if (!email || !password) {
     return { error: "Please enter both email and password." };
+  }
+
+  // 1. IP-level brute-force rate limit (5 attempts per 5 minutes)
+  const clientIp = await getClientIp();
+  const loginLimit = checkRateLimit({
+    key: `staff_login:ip:${clientIp}`,
+    maxRequests: 5,
+    windowMs: 5 * 60 * 1000,
+  });
+
+  if (!loginLimit.allowed) {
+    return {
+      error: `Too many login attempts. Please wait ${loginLimit.retryAfterSeconds} seconds before trying again.`,
+    };
   }
 
   try {
@@ -120,7 +135,10 @@ export async function transitionOrderAction(params: {
           error: "This transition requires Administrator authorization.",
         };
       }
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: "Failed to update order status. Please review details and try again.",
+      };
     }
 
     revalidatePath("/staff");
@@ -164,7 +182,10 @@ export async function recordStorePaymentAction(params: {
       if (error.message.includes("ALREADY_PAID")) {
         return { success: false, error: "This order is already marked as paid." };
       }
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: "Failed to record payment. Please try again.",
+      };
     }
 
     revalidatePath("/staff");
