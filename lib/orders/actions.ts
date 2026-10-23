@@ -7,25 +7,49 @@ import {
   lookupOrderTokenSchema,
 } from "./validation";
 import type { PlaceOrderResult } from "./types";
+import { checkRateLimit, getClientIp } from "@/lib/security/rate-limiter";
 
 const DEFAULT_LOCATION_SLUG = "namma-bakery-rr-nagar";
+
+// Rate limiting thresholds
+const ORDER_IP_MAX_REQUESTS = 6;
+const ORDER_IP_WINDOW_MS = 10 * 60 * 1000; // 6 orders per 10 minutes per IP
+
+const ORDER_PHONE_MAX_REQUESTS = 3;
+const ORDER_PHONE_WINDOW_MS = 10 * 60 * 1000; // 3 orders per 10 minutes per phone
+
+const LOOKUP_IP_MAX_REQUESTS = 10;
+const LOOKUP_IP_WINDOW_MS = 5 * 60 * 1000; // 10 lookups per 5 minutes per IP
 
 /**
  * Server Action: Places a customer order.
  *
- * SECURITY & ARCHITECTURAL BOUNDARY:
- * - Client data is completely untrusted.
- * - Server ignores all client prices and totals.
- * - Server invokes `place_order` PostgreSQL SECURITY DEFINER function via `service_role`.
- * - Database authoritative logic verifies:
- *   1. Store is open and orders are not paused.
- *   2. Products and variants exist, are active, and orderable online.
- *   3. Price tier rules are applied from the database snapshot.
- *   4. Lead times for all items are satisfied.
- *   5. Slot capacity is available with database lock concurrency serialization.
- *   6. Customer open-order rate limit is enforced.
+ * HARDENED SECURITY & ARCHITECTURAL BOUNDARY:
+ * 1. Rate Limiting: Sliding window per IP and per customer phone number.
+ * 2. Strict Input Validation: Zod schema with `.strict()` rejects unknown fields, validates UUIDs, and enforces quantity bounds.
+ * 3. Zero Trust Client Data: Server ignores all client prices and totals completely.
+ * 4. Concurrency & Slot Locking: `place_order` locks store settings row in Postgres to prevent race conditions.
+ * 5. Lead Time & Capacity: Authoritatively checked in Postgres against real menu items.
+ * 6. PII & Error Sanitization: Database internal stack traces and SQL errors are never returned to client.
  */
 export async function placeOrderAction(input: unknown): Promise<PlaceOrderResult> {
+  // 1. IP-level rate limit check
+  const clientIp = await getClientIp();
+  const ipLimit = checkRateLimit({
+    key: `order:ip:${clientIp}`,
+    maxRequests: ORDER_IP_MAX_REQUESTS,
+    windowMs: ORDER_IP_WINDOW_MS,
+  });
+
+  if (!ipLimit.allowed) {
+    return {
+      success: false,
+      error: `Too many order attempts from your network. Please wait ${ipLimit.retryAfterSeconds} seconds before trying again.`,
+      code: "RATE_LIMITED",
+    };
+  }
+
+  // 2. Strict Zod Schema validation
   const parsed = placeOrderInputSchema.safeParse(input);
 
   if (!parsed.success) {
@@ -33,13 +57,30 @@ export async function placeOrderAction(input: unknown): Promise<PlaceOrderResult
     return {
       success: false,
       error: firstIssue?.message || "Invalid order information provided.",
+      code: "VALIDATION_FAILED",
+    };
+  }
+
+  // 3. Phone-level rate limit check
+  const cleanPhone = parsed.data.customerDetails.customerPhone;
+  const phoneLimit = checkRateLimit({
+    key: `order:phone:${cleanPhone}`,
+    maxRequests: ORDER_PHONE_MAX_REQUESTS,
+    windowMs: ORDER_PHONE_WINDOW_MS,
+  });
+
+  if (!phoneLimit.allowed) {
+    return {
+      success: false,
+      error: `Too many order placement attempts for this phone number. Please wait ${phoneLimit.retryAfterSeconds} seconds before submitting again.`,
+      code: "RATE_LIMITED",
     };
   }
 
   try {
     const supabase = createAdminClient();
 
-    // 1. Resolve store location ID
+    // 4. Resolve store location ID
     const { data: locData } = await supabase
       .from("locations")
       .select("id")
@@ -66,7 +107,7 @@ export async function placeOrderAction(input: unknown): Promise<PlaceOrderResult
       };
     }
 
-    // 2. Identify authenticated customer if present, otherwise null for guest
+    // 5. Identify authenticated customer if present, otherwise null for guest
     let customerId: string | null = null;
     try {
       const serverAuthClient = await createServerClient();
@@ -81,7 +122,7 @@ export async function placeOrderAction(input: unknown): Promise<PlaceOrderResult
       customerId = null;
     }
 
-    // 3. Format items matching database place_order(..., p_items jsonb) specification
+    // 6. Format items matching database place_order(..., p_items jsonb) specification
     const p_items = parsed.data.items.map((it) => {
       if (it.kind === "TIERED_CAKE" && it.cakeConfig) {
         return {
@@ -100,22 +141,26 @@ export async function placeOrderAction(input: unknown): Promise<PlaceOrderResult
       };
     });
 
-    // 4. Invoke Postgres place_order RPC with database-level concurrency & pricing authority
+    // 7. Invoke Postgres place_order RPC with database-level concurrency & pricing authority
     const { data: rpcData, error: rpcError } = await supabase.rpc("place_order", {
       p_location_id: locationId,
       p_customer_id: customerId,
       p_name: parsed.data.customerDetails.customerName.trim(),
-      p_phone: parsed.data.customerDetails.customerPhone.trim(),
+      p_phone: cleanPhone,
       p_email: parsed.data.customerDetails.customerEmail?.trim() || null,
       p_pickup: parsed.data.pickupSlotStart,
       p_notes: parsed.data.customerDetails.customerNotes?.trim() || null,
       p_items: p_items,
     });
 
-    // 5. Handle and translate database business errors
+    // 8. Handle and translate database business errors safely
     if (rpcError) {
       const msg = rpcError.message || "";
-      console.error("[placeOrderAction] Database error placing order:", msg);
+      // Log sanitized error code without customer PII
+      console.error("[placeOrderAction] Order placement refused by database:", {
+        code: rpcError.code,
+        message: msg.slice(0, 100),
+      });
 
       if (msg.includes("SLOT_FULL")) {
         return {
@@ -217,7 +262,7 @@ export async function placeOrderAction(input: unknown): Promise<PlaceOrderResult
       };
     }
 
-    // 6. Return generated order info
+    // 9. Return generated order info
     const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
     if (!row?.order_number || !row?.public_token) {
       return {
@@ -234,7 +279,10 @@ export async function placeOrderAction(input: unknown): Promise<PlaceOrderResult
       publicToken: row.public_token,
     };
   } catch (err) {
-    console.error("[placeOrderAction] Unexpected failure:", err);
+    // Avoid logging sensitive client PII
+    console.error("[placeOrderAction] Unexpected server exception:", {
+      message: err instanceof Error ? err.message : "Unknown error",
+    });
     return {
       success: false,
       error:
@@ -245,10 +293,31 @@ export async function placeOrderAction(input: unknown): Promise<PlaceOrderResult
 
 /**
  * Server Action: Looks up an order's secure public_token using order number + customer phone number.
+ *
+ * HARDENED ABUSE PROTECTION:
+ * - Rate limited by IP (max 10 attempts per 5 minutes) to prevent brute force scraping or enumeration.
+ * - Strict regex input validation for order number and Indian mobile format.
+ * - Database RPC only returns the public_token if BOTH order number and phone number match.
  */
 export async function lookupOrderTokenAction(
   input: unknown
 ): Promise<{ success: boolean; token?: string; error?: string }> {
+  // 1. IP Rate Limiting
+  const clientIp = await getClientIp();
+  const ipLimit = checkRateLimit({
+    key: `lookup:ip:${clientIp}`,
+    maxRequests: LOOKUP_IP_MAX_REQUESTS,
+    windowMs: LOOKUP_IP_WINDOW_MS,
+  });
+
+  if (!ipLimit.allowed) {
+    return {
+      success: false,
+      error: `Too many tracking lookup requests. Please wait ${ipLimit.retryAfterSeconds} seconds before searching again.`,
+    };
+  }
+
+  // 2. Strict Input Validation
   const parsed = lookupOrderTokenSchema.safeParse(input);
 
   if (!parsed.success) {
@@ -256,7 +325,7 @@ export async function lookupOrderTokenAction(
       success: false,
       error:
         parsed.error.issues[0]?.message ||
-        "Please provide a valid order number and phone number.",
+        "Please provide a valid order number (e.g. NB1001) and 10-digit phone number.",
     };
   }
 
@@ -280,7 +349,9 @@ export async function lookupOrderTokenAction(
       token: data as string,
     };
   } catch (err) {
-    console.error("[lookupOrderTokenAction] Unexpected error:", err);
+    console.error("[lookupOrderTokenAction] Unexpected error:", {
+      message: err instanceof Error ? err.message : "Unknown error",
+    });
     return {
       success: false,
       error: "Unable to search orders at this time. Please try again later.",
