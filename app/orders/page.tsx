@@ -4,9 +4,13 @@ import { ArrowLeft } from "lucide-react";
 import { OrderLookupForm } from "@/components/orders/order-lookup-form";
 
 export const metadata: Metadata = {
-  title: "Track Order | Namma Bakery",
+  title: "Track Order",
   description:
     "Check live preparation and pickup status for your bakery order in RR Nagar, Bengaluru.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function OrdersIndexPage() {

@@ -26,15 +26,26 @@ export async function generateMetadata({
 
   if (!category) {
     return {
-      title: "Category Not Found — Namma Bakery",
+      title: "Category Not Found",
+      robots: { index: false, follow: true },
     };
   }
 
+  const desc =
+    category.description ??
+    `Freshly prepared ${category.name.toLowerCase()} at Namma Bakery in RR Nagar, Bengaluru. Available for bakery counter pickup.`;
+
   return {
-    title: `${category.name} — Namma Bakery Menu`,
-    description:
-      category.description ??
-      `Freshly prepared ${category.name.toLowerCase()} at Namma Bakery in RR Nagar, Bengaluru.`,
+    title: `${category.name} — Bakery Menu`,
+    description: desc,
+    alternates: {
+      canonical: `/menu/${category.slug}`,
+    },
+    openGraph: {
+      title: `${category.name} — Bakery Menu | Namma Bakery`,
+      description: desc,
+      url: `/menu/${category.slug}`,
+    },
   };
 }
 

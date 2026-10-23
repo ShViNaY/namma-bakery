@@ -6,8 +6,12 @@ import { StaffLoginForm } from "@/components/staff/staff-login-form";
 export const instant = false;
 
 export const metadata: Metadata = {
-  title: "Staff Login | Namma Bakery",
+  title: "Staff Login",
   description: "Internal staff sign in for Namma Bakery kitchen and operations.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default async function StaffLoginPage() {

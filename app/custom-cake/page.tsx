@@ -6,9 +6,18 @@ import { CustomCakeForm } from "@/components/custom-cake/custom-cake-form";
 export const instant = false;
 
 export const metadata: Metadata = {
-  title: "Custom Cakes & Enquiries | Namma Bakery RR Nagar",
+  title: "Custom Celebration Cakes & Enquiries",
   description:
-    "Order bespoke handcrafted celebration cakes in RR Nagar, Bengaluru. Theme cakes, wedding tiers, custom flavours, and eggless varieties made fresh.",
+    "Order bespoke handcrafted celebration cakes in RR Nagar, Bengaluru. Wedding tiers, birthday cakes, custom flavours, photo cakes, and eggless varieties made fresh.",
+  alternates: {
+    canonical: "/custom-cake",
+  },
+  openGraph: {
+    title: "Custom Celebration Cakes & Enquiries | Namma Bakery",
+    description:
+      "Order bespoke handcrafted celebration cakes in RR Nagar, Bengaluru. Wedding tiers, birthday cakes, custom flavours, and eggless varieties made fresh.",
+    url: "/custom-cake",
+  },
 };
 
 export default function CustomCakePage() {

@@ -35,10 +35,69 @@ const geistMono = Geist_Mono({
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { CartProvider } from "@/lib/cart/context";
+import { getBaseUrl } from "@/lib/utils/seo";
+
+const siteUrl = getBaseUrl();
 
 export const metadata: Metadata = {
-  title: "Namma Bakery — Fresh Cakes & Bakes | RR Nagar, Bengaluru",
-  description: "Fresh handcrafted cakes, savoury snacks, and baked treats in BEML Layout, Rajarajeshwari Nagar, Bengaluru.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Namma Bakery — Fresh Cakes & Bakes | RR Nagar, Bengaluru",
+    template: "%s | Namma Bakery",
+  },
+  description:
+    "Fresh handcrafted cakes, savoury snacks, and everyday baked treats in BEML Layout, Rajarajeshwari Nagar, Bengaluru. Order fresh cakes and bakes online for bakery counter pickup.",
+  keywords: [
+    "Namma Bakery",
+    "Bakery RR Nagar",
+    "Bengaluru Bakery",
+    "Cakes in Rajarajeshwari Nagar",
+    "BEML Layout Bakery",
+    "Birthday Cakes Bengaluru",
+    "Custom Celebration Cakes",
+    "Eggless Cakes RR Nagar",
+    "Fresh Bakes Bangalore",
+  ],
+  authors: [{ name: "Namma Bakery" }],
+  creator: "Namma Bakery",
+  publisher: "Namma Bakery",
+  formatDetection: {
+    email: false,
+    address: true,
+    telephone: false,
+  },
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: siteUrl,
+    siteName: "Namma Bakery",
+    title: "Namma Bakery — Fresh Cakes & Bakes | RR Nagar, Bengaluru",
+    description:
+      "Fresh handcrafted cakes, savoury snacks, and baked treats in BEML Layout, Rajarajeshwari Nagar, Bengaluru.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Namma Bakery — Fresh Cakes & Bakes | RR Nagar, Bengaluru",
+    description:
+      "Fresh handcrafted cakes, savoury snacks, and baked treats in BEML Layout, Rajarajeshwari Nagar, Bengaluru.",
+  },
+  icons: {
+    icon: "/favicon.ico",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({

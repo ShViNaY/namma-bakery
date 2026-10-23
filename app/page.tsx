@@ -1,14 +1,32 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Cake, Clock, MapPin, Sparkles, UtensilsCrossed } from "lucide-react";
 import { getMenuCategories } from "@/lib/menu/queries";
+import { getBakeryJsonLd } from "@/lib/utils/seo";
 
 export const instant = false;
 
+export const metadata: Metadata = {
+  title: "Namma Bakery — Fresh Cakes & Bakes | RR Nagar, Bengaluru",
+  description:
+    "Handcrafted celebration cakes, savoury snacks, and baked treats in BEML Layout 3rd Stage, Rajarajeshwari Nagar, Bengaluru. Fresh daily baking with pure veg eggless options.",
+  alternates: {
+    canonical: "/",
+  },
+};
+
 export default async function HomePage() {
   const { data: categories } = await getMenuCategories();
+  const jsonLd = getBakeryJsonLd();
 
   return (
     <div className="flex flex-col">
+      {/* Schema.org Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Hero Section */}
       <section className="border-b border-border bg-card/40 py-16 sm:py-24">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">

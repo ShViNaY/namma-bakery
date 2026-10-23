@@ -14,8 +14,12 @@ import { staffSignOutAction } from "@/lib/staff/actions";
 export const instant = false;
 
 export const metadata: Metadata = {
-  title: "Staff Dashboard | Namma Bakery",
+  title: "Staff Dashboard",
   description: "Internal operations dashboard for Namma Bakery orders and kitchen queue.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default async function StaffPage() {

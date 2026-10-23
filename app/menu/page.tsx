@@ -9,9 +9,18 @@ import { CustomCakeBanner } from "@/components/menu/custom-cake-banner";
 export const instant = false;
 
 export const metadata: Metadata = {
-  title: "Menu — Namma Bakery | Handcrafted Cakes & Bakes",
+  title: "Bakery Menu — Handcrafted Cakes & Fresh Bakes",
   description:
-    "Explore our complete bakery menu including fresh celebration cakes, sandwiches, mini pizzas, and soups in RR Nagar.",
+    "Explore our complete bakery menu including fresh celebration cakes, savoury snacks, pastries, and daily treats in RR Nagar, Bengaluru. Available for bakery pickup.",
+  alternates: {
+    canonical: "/menu",
+  },
+  openGraph: {
+    title: "Bakery Menu — Handcrafted Cakes & Fresh Bakes | Namma Bakery",
+    description:
+      "Explore our complete bakery menu including fresh celebration cakes, savoury snacks, pastries, and daily treats in RR Nagar, Bengaluru.",
+    url: "/menu",
+  },
 };
 
 export default async function MenuPage() {

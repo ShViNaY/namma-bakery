@@ -23,14 +23,16 @@ export async function generateMetadata({
 
   if (!order) {
     return {
-      title: "Order Not Found | Namma Bakery",
+      title: "Order Not Found",
       description: "Unable to find the requested bakery order.",
+      robots: { index: false, follow: false },
     };
   }
 
   return {
-    title: `Order ${order.order_number} | Namma Bakery`,
+    title: `Order ${order.order_number} Tracking`,
     description: `Track live order and pickup status for order ${order.order_number} at Namma Bakery, Rajarajeshwari Nagar.`,
+    robots: { index: false, follow: false },
   };
 }
 

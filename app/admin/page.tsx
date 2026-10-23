@@ -16,9 +16,13 @@ import {
 export const instant = false;
 
 export const metadata: Metadata = {
-  title: "Admin Portal | Namma Bakery",
+  title: "Admin Portal",
   description:
     "Store operations, catalog management, and administrative controls for Namma Bakery.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default async function AdminPage() {

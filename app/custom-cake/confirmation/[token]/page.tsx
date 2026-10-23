@@ -7,8 +7,12 @@ import { CustomCakeConfirmation } from "@/components/custom-cake/custom-cake-con
 export const instant = false;
 
 export const metadata: Metadata = {
-  title: "Custom Cake Enquiry Confirmation | Namma Bakery",
+  title: "Custom Cake Enquiry Confirmation",
   description: "Your custom celebration cake enquiry confirmation and details.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 interface ConfirmationPageProps {

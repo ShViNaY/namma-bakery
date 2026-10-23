@@ -25,18 +25,27 @@ export async function generateMetadata({
 
   if (!product) {
     return {
-      title: "Product Not Found — Namma Bakery",
+      title: "Product Not Found",
+      robots: { index: false, follow: true },
     };
   }
 
   const categoryName = product.category?.name ?? "Menu";
   const desc =
     product.description ||
-    `Fresh ${product.name} available at Namma Bakery in BEML Layout, Rajarajeshwari Nagar, Bengaluru.`;
+    `Fresh handcrafted ${product.name} available at Namma Bakery in BEML Layout 3rd Stage, Rajarajeshwari Nagar, Bengaluru. Available for counter pickup.`;
 
   return {
-    title: `${product.name} — ${categoryName} | Namma Bakery`,
+    title: `${product.name} — ${categoryName}`,
     description: desc,
+    alternates: {
+      canonical: `/menu/${categorySlug}/${productSlug}`,
+    },
+    openGraph: {
+      title: `${product.name} — ${categoryName} | Namma Bakery`,
+      description: desc,
+      url: `/menu/${categorySlug}/${productSlug}`,
+    },
   };
 }
 
