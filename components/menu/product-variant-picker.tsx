@@ -17,6 +17,7 @@ interface ProductVariantPickerProps {
     is_available: boolean;
     orderable_online: boolean;
     requires_confirmation: boolean;
+    lead_time_minutes?: number;
   };
   categorySlug: string;
   variants?: ProductVariant[];
@@ -87,6 +88,7 @@ export function ProductVariantPicker({
       variantLabel: activeVariant?.label,
       unitPricePaise: currentPricePaise,
       quantity: 1,
+      leadTimeMinutes: product.lead_time_minutes,
     });
 
     setJustAdded(true);

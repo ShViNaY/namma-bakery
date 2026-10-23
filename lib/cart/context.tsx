@@ -7,11 +7,16 @@ import type {
   CartItem,
   CartState,
 } from "./types";
+import type { PickupSlot } from "@/lib/pickup/types";
+import { getIstDateString } from "@/lib/utils/date";
+import { calendarDateSchema } from "@/lib/validation/common";
 
 const STORAGE_KEY = "namma-bakery-cart-v1";
 
 const initialState: CartState = {
   items: [],
+  pickupDate: null,
+  pickupSlot: null,
 };
 
 function cartReducer(state: CartState, action: CartAction): CartState {
@@ -19,7 +24,9 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     case "INIT_CART": {
       return {
         ...state,
-        items: action.payload,
+        items: action.payload.items,
+        pickupDate: action.payload.pickupDate ?? null,
+        pickupSlot: action.payload.pickupSlot ?? null,
       };
     }
     case "ADD_ITEM": {
@@ -90,10 +97,35 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         ),
       };
     }
+    case "SET_PICKUP_DATE": {
+      const newDate = action.payload;
+      // If date changes, invalidate the previously selected slot
+      const nextSlot = state.pickupDate === newDate ? state.pickupSlot : null;
+      return {
+        ...state,
+        pickupDate: newDate,
+        pickupSlot: nextSlot,
+      };
+    }
+    case "SET_PICKUP_SLOT": {
+      return {
+        ...state,
+        pickupSlot: action.payload,
+      };
+    }
+    case "CLEAR_PICKUP": {
+      return {
+        ...state,
+        pickupDate: null,
+        pickupSlot: null,
+      };
+    }
     case "CLEAR_CART": {
       return {
         ...state,
         items: [],
+        pickupDate: null,
+        pickupSlot: null,
       };
     }
     default:
@@ -101,29 +133,86 @@ function cartReducer(state: CartState, action: CartAction): CartState {
   }
 }
 
-function parseStoredCart(raw: string | null): CartItem[] {
-  if (!raw) return [];
+function validateCartItems(arr: unknown): CartItem[] {
+  if (!Array.isArray(arr)) return [];
+  return arr.filter((item): item is CartItem => {
+    return (
+      typeof item === "object" &&
+      item !== null &&
+      typeof item.itemKey === "string" &&
+      typeof item.productId === "string" &&
+      typeof item.productSlug === "string" &&
+      typeof item.productName === "string" &&
+      typeof item.categorySlug === "string" &&
+      typeof item.unitPricePaise === "number" &&
+      item.unitPricePaise >= 0 &&
+      typeof item.quantity === "number" &&
+      item.quantity > 0
+    );
+  });
+}
+
+function parseStoredCart(raw: string | null): {
+  items: CartItem[];
+  pickupDate: string | null;
+  pickupSlot: PickupSlot | null;
+} {
+  const emptyResult = { items: [], pickupDate: null, pickupSlot: null };
+  if (!raw) return emptyResult;
+
   try {
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    // Basic structural validation
-    return parsed.filter((item): item is CartItem => {
-      return (
-        typeof item === "object" &&
-        item !== null &&
-        typeof item.itemKey === "string" &&
-        typeof item.productId === "string" &&
-        typeof item.productSlug === "string" &&
-        typeof item.productName === "string" &&
-        typeof item.categorySlug === "string" &&
-        typeof item.unitPricePaise === "number" &&
-        item.unitPricePaise >= 0 &&
-        typeof item.quantity === "number" &&
-        item.quantity > 0
-      );
-    });
+
+    // Backward compatibility: If previous version stored just an array of CartItem[]
+    if (Array.isArray(parsed)) {
+      return {
+        items: validateCartItems(parsed),
+        pickupDate: null,
+        pickupSlot: null,
+      };
+    }
+
+    if (typeof parsed !== "object" || parsed === null) {
+      return emptyResult;
+    }
+
+    const items = validateCartItems(parsed.items);
+
+    // Validate pickupDate (must be YYYY-MM-DD and not in the past in Asia/Kolkata)
+    let pickupDate: string | null = null;
+    const todayStr = getIstDateString();
+
+    if (
+      typeof parsed.pickupDate === "string" &&
+      calendarDateSchema.safeParse(parsed.pickupDate).success &&
+      parsed.pickupDate >= todayStr
+    ) {
+      pickupDate = parsed.pickupDate;
+    }
+
+    // Validate pickupSlot
+    let pickupSlot: PickupSlot | null = null;
+    if (
+      pickupDate &&
+      typeof parsed.pickupSlot === "object" &&
+      parsed.pickupSlot !== null &&
+      typeof parsed.pickupSlot.slotStart === "string" &&
+      typeof parsed.pickupSlot.formattedTime === "string"
+    ) {
+      // If today is selected, ensure slot has not already passed
+      const slotStartTime = new Date(parsed.pickupSlot.slotStart).getTime();
+      if (!Number.isNaN(slotStartTime) && slotStartTime > Date.now()) {
+        pickupSlot = parsed.pickupSlot as PickupSlot;
+      }
+    }
+
+    return {
+      items,
+      pickupDate,
+      pickupSlot,
+    };
   } catch {
-    return [];
+    return emptyResult;
   }
 }
 
@@ -137,8 +226,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      const items = parseStoredCart(stored);
-      dispatch({ type: "INIT_CART", payload: items });
+      const parsed = parseStoredCart(stored);
+      dispatch({ type: "INIT_CART", payload: parsed });
     } catch {
       // Ignore localStorage read failures
     } finally {
@@ -150,11 +239,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     if (!isHydrated) return;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
+      const dataToStore = {
+        items: state.items,
+        pickupDate: state.pickupDate,
+        pickupSlot: state.pickupSlot,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToStore));
     } catch {
       // Storage quota or privacy mode error handling
     }
-  }, [state.items, isHydrated]);
+  }, [state.items, state.pickupDate, state.pickupSlot, isHydrated]);
 
   const addItem = React.useCallback(
     (item: Omit<CartItem, "quantity"> & { quantity?: number }) => {
@@ -186,6 +280,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: "CLEAR_CART" });
   }, []);
 
+  const setPickupDate = React.useCallback((date: string | null) => {
+    dispatch({ type: "SET_PICKUP_DATE", payload: date });
+  }, []);
+
+  const setPickupSlot = React.useCallback((slot: PickupSlot | null) => {
+    dispatch({ type: "SET_PICKUP_SLOT", payload: slot });
+  }, []);
+
+  const clearPickup = React.useCallback(() => {
+    dispatch({ type: "CLEAR_PICKUP" });
+  }, []);
+
   const itemCount = React.useMemo(() => {
     return state.items.reduce((sum, item) => sum + item.quantity, 0);
   }, [state.items]);
@@ -206,15 +312,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       subtotalPaise,
       isEmpty,
       isHydrated,
+      pickupDate: state.pickupDate,
+      pickupSlot: state.pickupSlot,
       addItem,
       removeItem,
       updateQuantity,
       incrementQuantity,
       decrementQuantity,
       clearCart,
+      setPickupDate,
+      setPickupSlot,
+      clearPickup,
     }),
     [
       state.items,
+      state.pickupDate,
+      state.pickupSlot,
       itemCount,
       subtotalPaise,
       isEmpty,
@@ -225,6 +338,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       incrementQuantity,
       decrementQuantity,
       clearCart,
+      setPickupDate,
+      setPickupSlot,
+      clearPickup,
     ]
   );
 

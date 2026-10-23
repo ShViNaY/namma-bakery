@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowLeft, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { ArrowLeft, Calendar, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useCart } from "@/lib/cart/context";
 import { formatPaise } from "@/lib/utils/money";
 import {
@@ -10,6 +10,8 @@ import {
   formatEggType,
   formatWeightGrams,
 } from "@/lib/menu/utils";
+import { PickupSelector } from "@/components/pickup/pickup-selector";
+import { formatPickupSelectionSummary } from "@/lib/pickup/utils";
 
 export function CartView() {
   const {
@@ -18,6 +20,8 @@ export function CartView() {
     subtotalPaise,
     isEmpty,
     isHydrated,
+    pickupDate,
+    pickupSlot,
     incrementQuantity,
     decrementQuantity,
     removeItem,
@@ -97,7 +101,7 @@ export function CartView() {
           <button
             type="button"
             onClick={clearCart}
-            className="text-xs font-medium text-muted-foreground transition-colors hover:text-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive"
+            className="flex h-9 items-center px-2 text-xs font-medium text-muted-foreground transition-colors hover:text-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive"
           >
             Clear cart
           </button>
@@ -105,114 +109,122 @@ export function CartView() {
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
-        {/* Cart Items List */}
-        <div className="lg:col-span-8">
-          <ul className="divide-y divide-border rounded-sm border border-border bg-card">
-            {items.map((item) => {
-              const lineTotalPaise = item.unitPricePaise * item.quantity;
-              const productUrl = `/menu/${item.categorySlug}/${item.productSlug}`;
+        {/* Cart Items List & Pickup Selection */}
+        <div className="lg:col-span-8 space-y-8">
+          <div>
+            <h2 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-3">
+              Items in your order
+            </h2>
+            <ul className="divide-y divide-border rounded-sm border border-border bg-card">
+              {items.map((item) => {
+                const lineTotalPaise = item.unitPricePaise * item.quantity;
+                const productUrl = `/menu/${item.categorySlug}/${item.productSlug}`;
 
-              return (
-                <li
-                  key={item.itemKey}
-                  className="flex flex-col gap-4 p-4 sm:p-5"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex flex-wrap items-baseline gap-2">
-                        <Link
-                          href={productUrl}
-                          className="font-heading text-lg font-semibold text-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
-                        >
-                          {item.productName}
-                        </Link>
-                        {item.productNameKn && (
-                          <span className="font-kannada text-xs text-caramel">
-                            {item.productNameKn}
-                          </span>
+                return (
+                  <li
+                    key={item.itemKey}
+                    className="flex flex-col gap-4 p-4 sm:p-5"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex flex-wrap items-baseline gap-2">
+                          <Link
+                            href={productUrl}
+                            className="font-heading text-lg font-semibold text-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
+                          >
+                            {item.productName}
+                          </Link>
+                          {item.productNameKn && (
+                            <span className="font-kannada text-xs text-caramel">
+                              {item.productNameKn}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Configuration description */}
+                        {item.kind === "TIERED_CAKE" && item.configuration && (
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {formatWeightGrams(item.configuration.weightGrams)} ·{" "}
+                            {formatEggType(item.configuration.eggType)} ·{" "}
+                            {formatCakeFinish(item.configuration.finish)}
+                          </p>
                         )}
+
+                        {item.kind === "SIMPLE" && item.variantLabel && (
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Size / Portion: {item.variantLabel}
+                          </p>
+                        )}
+
+                        {/* Unit Price */}
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Unit price: {formatPaise(item.unitPricePaise)}
+                        </p>
                       </div>
 
-                      {/* Configuration description */}
-                      {item.kind === "TIERED_CAKE" && item.configuration && (
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {formatWeightGrams(item.configuration.weightGrams)} ·{" "}
-                          {formatEggType(item.configuration.eggType)} ·{" "}
-                          {formatCakeFinish(item.configuration.finish)}
-                        </p>
-                      )}
-
-                      {item.kind === "SIMPLE" && item.variantLabel && (
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          Size / Portion: {item.variantLabel}
-                        </p>
-                      )}
-
-                      {/* Unit Price */}
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Unit price: {formatPaise(item.unitPricePaise)}
-                      </p>
+                      {/* Remove Action */}
+                      <button
+                        type="button"
+                        onClick={() => removeItem(item.itemKey)}
+                        aria-label={`Remove ${item.productName} from cart`}
+                        className="flex h-12 w-12 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
+                      </button>
                     </div>
 
-                    {/* Remove Action */}
-                    <button
-                      type="button"
-                      onClick={() => removeItem(item.itemKey)}
-                      aria-label={`Remove ${item.productName} from cart`}
-                      className="flex h-12 w-12 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" aria-hidden="true" />
-                    </button>
-                  </div>
-
-                  {/* Quantity and Line Total */}
-                  <div className="flex items-center justify-between border-t border-border/50 pt-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-muted-foreground mr-1">
-                        Qty:
-                      </span>
-                      <div className="inline-flex items-center rounded-sm border border-border bg-background">
-                        <button
-                          type="button"
-                          disabled={item.quantity <= 1}
-                          onClick={() => decrementQuantity(item.itemKey)}
-                          aria-label={`Decrease quantity of ${item.productName}`}
-                          className="flex h-12 w-12 sm:h-9 sm:w-9 items-center justify-center text-foreground transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:text-muted-foreground/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
-                        >
-                          <Minus className="h-4 w-4 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
-                        </button>
-                        <span
-                          className="flex h-12 min-w-12 sm:h-9 sm:min-w-9 items-center justify-center px-2 text-sm sm:text-xs font-semibold tabular-nums text-foreground"
-                          aria-live="polite"
-                        >
-                          {item.quantity}
+                    {/* Quantity and Line Total */}
+                    <div className="flex items-center justify-between border-t border-border/50 pt-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-muted-foreground mr-1">
+                          Qty:
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => incrementQuantity(item.itemKey)}
-                          aria-label={`Increase quantity of ${item.productName}`}
-                          className="flex h-12 w-12 sm:h-9 sm:w-9 items-center justify-center text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
-                        >
-                          <Plus className="h-4 w-4 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
-                        </button>
+                        <div className="inline-flex items-center rounded-sm border border-border bg-background">
+                          <button
+                            type="button"
+                            disabled={item.quantity <= 1}
+                            onClick={() => decrementQuantity(item.itemKey)}
+                            aria-label={`Decrease quantity of ${item.productName}`}
+                            className="flex h-12 w-12 sm:h-9 sm:w-9 items-center justify-center text-foreground transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:text-muted-foreground/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                          >
+                            <Minus className="h-4 w-4 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
+                          </button>
+                          <span
+                            className="flex h-12 min-w-12 sm:h-9 sm:min-w-9 items-center justify-center px-2 text-sm sm:text-xs font-semibold tabular-nums text-foreground"
+                            aria-live="polite"
+                          >
+                            {item.quantity}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => incrementQuantity(item.itemKey)}
+                            aria-label={`Increase quantity of ${item.productName}`}
+                            className="flex h-12 w-12 sm:h-9 sm:w-9 items-center justify-center text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                          >
+                            <Plus className="h-4 w-4 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <span className="text-xs text-muted-foreground block">
+                          Line total
+                        </span>
+                        <span className="font-heading text-base font-bold text-foreground">
+                          {formatPaise(lineTotalPaise)}
+                        </span>
                       </div>
                     </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
 
-                    <div className="text-right">
-                      <span className="text-xs text-muted-foreground block">
-                        Line total
-                      </span>
-                      <span className="font-heading text-base font-bold text-foreground">
-                        {formatPaise(lineTotalPaise)}
-                      </span>
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+          {/* Pickup Slot Scheduling Section */}
+          <PickupSelector />
 
-          <div className="mt-4">
+          <div>
             <Link
               href="/menu"
               className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-caramel"
@@ -236,6 +248,30 @@ export function CartView() {
                 <dd className="font-medium text-foreground">{itemCount}</dd>
               </div>
 
+              {/* Pickup Summary Line */}
+              <div className="border-t border-border pt-3">
+                <dt className="text-xs font-semibold text-muted-foreground uppercase flex items-center gap-1.5 mb-1">
+                  <Calendar className="h-3.5 w-3.5 text-caramel" />
+                  <span>Scheduled Pickup</span>
+                </dt>
+                <dd className="text-xs text-foreground">
+                  {pickupDate && pickupSlot ? (
+                    <div className="space-y-0.5">
+                      <span className="font-semibold text-caramel block">
+                        {formatPickupSelectionSummary(pickupDate)}
+                      </span>
+                      <span className="text-muted-foreground block font-medium">
+                        Slot: {pickupSlot.formattedTime}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-amber-700 dark:text-amber-400 font-medium italic">
+                      Please select a pickup slot
+                    </span>
+                  )}
+                </dd>
+              </div>
+
               <div className="flex justify-between border-t border-border pt-3">
                 <dt className="font-semibold text-foreground">Subtotal</dt>
                 <dd className="font-heading text-xl font-bold text-foreground">
@@ -249,11 +285,11 @@ export function CartView() {
                 ✓ All prices include taxes.
               </p>
               <p className="mt-1">
-                Pickup counter located at BEML Layout, RR Nagar.
+                Counter pickup at BEML Layout 3rd Stage, RR Nagar.
               </p>
             </div>
 
-            {/* Next Step Notice (Checkout is not part of Step 3.3) */}
+            {/* Next Step Notice (Checkout is Step 3.5) */}
             <div className="mt-6 flex flex-col gap-2.5">
               <Link
                 href="/menu"
@@ -263,7 +299,7 @@ export function CartView() {
               </Link>
 
               <div className="rounded-sm border border-dashed border-border p-3 text-center text-xs text-muted-foreground">
-                Pickup slot scheduling and checkout will be unlocked in the next step.
+                Pickup slot scheduling is active. Checkout and order placement will be unlocked in Step 3.5.
               </div>
             </div>
           </div>
