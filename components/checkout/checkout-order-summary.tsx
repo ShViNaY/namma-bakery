@@ -31,7 +31,7 @@ export function CheckoutOrderSummary({
         </div>
         <Link
           href="/cart"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-caramel hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
+          className="inline-flex min-touch-target items-center gap-1.5 text-xs font-semibold text-caramel hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
         >
           <Edit2 className="h-3.5 w-3.5" aria-hidden="true" />
           <span>Edit Cart</span>

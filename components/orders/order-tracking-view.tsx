@@ -159,7 +159,7 @@ export function OrderTrackingView({
                 type="button"
                 onClick={handleCopyOrderNumber}
                 aria-label="Copy order number"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-sm text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel transition-colors"
+                className="inline-flex min-touch-target h-12 w-12 items-center justify-center rounded-sm text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel transition-colors"
               >
                 {copied ? (
                   <Check className="h-4 w-4 text-emerald-600" />

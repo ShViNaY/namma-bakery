@@ -20,7 +20,7 @@ export default function OrdersIndexPage() {
         <nav aria-label="Breadcrumb">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-caramel focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel transition-colors"
+            className="inline-flex min-touch-target items-center gap-1.5 text-xs text-muted-foreground hover:text-caramel focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>Return to Home</span>

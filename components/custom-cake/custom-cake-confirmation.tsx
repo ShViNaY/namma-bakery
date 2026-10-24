@@ -95,7 +95,7 @@ export function CustomCakeConfirmation({ request }: CustomCakeConfirmationProps)
           <button
             type="button"
             onClick={handleCopy}
-            className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
+            className="min-touch-target inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
             title="Copy reference number"
             aria-label="Copy reference number"
           >

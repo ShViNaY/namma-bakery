@@ -275,7 +275,7 @@ export function CustomCakeForm() {
                   type="button"
                   aria-pressed={isSelected}
                   onClick={() => setCakeType(occ)}
-                  className={`min-h-[44px] px-3.5 py-2 rounded-sm text-xs font-medium inline-flex items-center justify-center transition-colors ${
+                  className={`min-touch-target min-h-[48px] px-3.5 py-2 rounded-sm text-xs font-medium inline-flex items-center justify-center transition-colors ${
                     isSelected
                       ? "bg-caramel text-white shadow-xs"
                       : "border border-border bg-background text-foreground hover:border-caramel/50"
@@ -311,7 +311,7 @@ export function CustomCakeForm() {
                   type="button"
                   aria-pressed={isSelected}
                   onClick={() => setFlavour(flav)}
-                  className={`min-h-[44px] px-3.5 py-2 rounded-sm text-xs font-medium inline-flex items-center justify-center transition-colors ${
+                  className={`min-touch-target min-h-[48px] px-3.5 py-2 rounded-sm text-xs font-medium inline-flex items-center justify-center transition-colors ${
                     isSelected
                       ? "bg-caramel text-white shadow-xs"
                       : "border border-border bg-background text-foreground hover:border-caramel/50"
@@ -403,7 +403,7 @@ export function CustomCakeForm() {
                     type="button"
                     aria-pressed={isSelected}
                     onClick={() => setShape(sh)}
-                    className={`min-h-[44px] px-2.5 py-2 rounded-sm text-xs font-medium flex items-center justify-center text-center transition-colors truncate ${
+                    className={`min-touch-target min-h-[48px] px-2.5 py-2 rounded-sm text-xs font-medium flex items-center justify-center text-center transition-colors truncate ${
                       isSelected
                         ? "bg-caramel text-white shadow-xs"
                         : "border border-border bg-background text-foreground hover:border-caramel/50"
@@ -535,7 +535,7 @@ export function CustomCakeForm() {
               value={messageOnCake}
               onChange={(e) => setMessageOnCake(e.target.value)}
               placeholder="e.g. Happy 5th Birthday Dhruv! or Cheers to 25 Years"
-              className="w-full min-h-[44px] rounded-sm border border-border bg-background pl-10 pr-3.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+              className="w-full min-h-[48px] rounded-sm border border-border bg-background pl-10 pr-3.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
             />
           </div>
         </div>

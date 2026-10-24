@@ -101,7 +101,7 @@ export function CartView() {
           <button
             type="button"
             onClick={clearCart}
-            className="inline-flex min-h-[44px] items-center px-3 text-xs font-medium text-muted-foreground transition-colors hover:text-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive"
+            className="inline-flex min-touch-target items-center px-3 text-xs font-medium text-muted-foreground transition-colors hover:text-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive"
           >
             Clear cart
           </button>
@@ -167,7 +167,7 @@ export function CartView() {
                         type="button"
                         onClick={() => removeItem(item.itemKey)}
                         aria-label={`Remove ${item.productName} from cart`}
-                        className="flex min-h-[44px] min-w-[44px] h-11 w-11 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
+                        className="flex min-touch-target h-12 w-12 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
                       >
                         <Trash2 className="h-4 w-4" aria-hidden="true" />
                       </button>
@@ -185,12 +185,12 @@ export function CartView() {
                             disabled={item.quantity <= 1}
                             onClick={() => decrementQuantity(item.itemKey)}
                             aria-label={`Decrease quantity of ${item.productName}`}
-                            className="flex min-h-[44px] min-w-[44px] h-11 w-11 items-center justify-center text-foreground transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:text-muted-foreground/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                            className="flex min-touch-target h-12 w-12 items-center justify-center text-foreground transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:text-muted-foreground/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
                           >
                             <Minus className="h-4 w-4" aria-hidden="true" />
                           </button>
                           <span
-                            className="flex min-h-[44px] min-w-[44px] h-11 items-center justify-center px-3 text-sm font-semibold tabular-nums text-foreground"
+                            className="flex min-h-[48px] min-w-[44px] h-12 items-center justify-center px-3 text-sm font-semibold tabular-nums text-foreground"
                             aria-live="polite"
                           >
                             {item.quantity}
@@ -199,7 +199,7 @@ export function CartView() {
                             type="button"
                             onClick={() => incrementQuantity(item.itemKey)}
                             aria-label={`Increase quantity of ${item.productName}`}
-                            className="flex min-h-[44px] min-w-[44px] h-11 w-11 items-center justify-center text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                            className="flex min-touch-target h-12 w-12 items-center justify-center text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
                           >
                             <Plus className="h-4 w-4" aria-hidden="true" />
                           </button>
@@ -312,7 +312,7 @@ export function CartView() {
 
               <Link
                 href="/menu"
-                className="flex h-11 w-full items-center justify-center rounded-sm border border-border bg-card text-xs font-semibold text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                className="flex min-touch-target h-12 w-full items-center justify-center rounded-sm border border-border bg-card text-xs font-semibold text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
               >
                 Add More Items
               </Link>

@@ -65,13 +65,13 @@ export default async function OrderDetailsPage({
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
             href="/orders"
-            className="inline-flex h-11 items-center justify-center rounded-sm bg-caramel px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-caramel/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel w-full sm:w-auto"
+            className="inline-flex min-touch-target h-12 items-center justify-center rounded-sm bg-caramel px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-caramel/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel w-full sm:w-auto"
           >
             Look Up Order by Number
           </Link>
           <Link
             href="/menu"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-sm border border-border bg-card px-5 text-sm font-semibold text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel w-full sm:w-auto"
+            className="inline-flex min-touch-target h-12 items-center justify-center gap-2 rounded-sm border border-border bg-card px-5 text-sm font-semibold text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel w-full sm:w-auto"
           >
             <ShoppingBag className="h-4 w-4" />
             <span>Explore Menu</span>
