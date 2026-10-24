@@ -204,6 +204,26 @@
   min-width: 48px;
 }
 
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+}
+
 /* -------------------------------------------------------------
    Bakery Editorial Motion System
    Warm, restrained, handcrafted motion tailored for Namma Bakery
