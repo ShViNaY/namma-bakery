@@ -6,17 +6,18 @@ import { cookies } from "next/headers";
  *
  * For use in Server Components, Server Actions, and Route Handlers.
  * Synchronizes auth session state via Next.js cookies (getAll / setAll).
- * Uses public anon key so operations are constrained by Row Level Security (RLS).
- * Never exposes service-role credentials.
+ * Uses public publishable key (NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) so operations
+ * are constrained by Row Level Security (RLS).
+ * Never exposes secret key credentials.
  */
 export async function createClient() {
   const supabaseUrl =
     process.env.NEXT_PUBLIC_SUPABASE_URL || "http://127.0.0.1:54321";
-  const supabaseAnonKey =
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.placeholder";
+  const supabasePublishableKey =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    "sb_publishable_placeholder";
 
-  return createServerClient(supabaseUrl, supabaseAnonKey, {
+  return createServerClient(supabaseUrl, supabasePublishableKey, {
     cookies: {
       async getAll() {
         const cookieStore = await cookies();
