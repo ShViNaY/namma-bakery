@@ -1,4 +1,50 @@
-import type { CakeFinish, EggType } from "./types";
+import type { CakeFinish, EggType, ProductKind } from "./types";
+
+/**
+ * Determines whether a product has multiple possible purchasable prices across its
+ * variants or pricing tier rules.
+ *
+ * Returns true only when:
+ * - For SIMPLE products: there are multiple valid options with differing prices.
+ * - For TIERED_CAKE products: there are multiple active tier rules with differing prices.
+ *
+ * If all valid options have the exact same price or only a single option exists, returns false.
+ */
+export function hasMultiplePrices(product: {
+  kind: ProductKind;
+  product_variants?: { price_paise: number; is_available: boolean }[] | null;
+  price_tiers?: {
+    price_tier_rules?: { price_paise: number; is_active: boolean }[] | null;
+  } | null;
+}): boolean {
+  if (product.kind === "SIMPLE" && product.product_variants?.length) {
+    const available = product.product_variants.filter((v) => v.is_available);
+    const pool = available.length > 0 ? available : product.product_variants;
+    const prices = pool
+      .map((v) => v.price_paise)
+      .filter((p) => typeof p === "number" && p > 0);
+    if (prices.length <= 1) return false;
+    return Math.min(...prices) !== Math.max(...prices);
+  }
+
+  if (
+    product.kind === "TIERED_CAKE" &&
+    product.price_tiers?.price_tier_rules?.length
+  ) {
+    const active = product.price_tiers.price_tier_rules.filter(
+      (r) => r.is_active
+    );
+    const pool =
+      active.length > 0 ? active : product.price_tiers.price_tier_rules;
+    const prices = pool
+      .map((r) => r.price_paise)
+      .filter((p) => typeof p === "number" && p > 0);
+    if (prices.length <= 1) return false;
+    return Math.min(...prices) !== Math.max(...prices);
+  }
+
+  return false;
+}
 
 /**
  * Formats a lead time in minutes into customer-friendly bakery text.

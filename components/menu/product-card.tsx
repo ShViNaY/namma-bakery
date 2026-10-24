@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Cake, Clock, UtensilsCrossed, Soup } from "lucide-react";
 import type { Product } from "@/lib/menu/types";
 import { formatPaise } from "@/lib/utils/money";
+import { hasMultiplePrices } from "@/lib/menu/utils";
 
 interface ProductCardProps {
   product: Product;
@@ -25,7 +26,7 @@ export function ProductCard({ product }: ProductCardProps) {
       ? formatPaise(product.startingPricePaise)
       : null;
 
-  const isCake = product.kind === "TIERED_CAKE";
+  const showFromPrice = hasMultiplePrices(product);
   const categorySlug = product.category?.slug ?? "cakes";
 
   const primaryImage =
@@ -124,7 +125,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <div className="text-right">
             {formattedPrice ? (
               <span className="font-heading text-sm font-semibold text-foreground">
-                {isCake ? `From ${formattedPrice}` : formattedPrice}
+                {showFromPrice ? `From ${formattedPrice}` : formattedPrice}
               </span>
             ) : (
               <span className="text-xs text-muted-foreground italic">
