@@ -197,7 +197,101 @@ export function OrderTrackingView({
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
               Order Progress
             </h3>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-5 sm:gap-2">
+            {/* Mobile Vertical Timeline (< 768px) */}
+            <ol className="block md:hidden space-y-0" aria-label="Order progress timeline">
+              {STATUS_STEPS.map((step, idx) => {
+                const isPassed = stepIndex >= idx;
+                const isCurrent = stepIndex === idx;
+                const isCompleted = stepIndex > idx || (stepIndex === 4 && idx === 4);
+                const isLast = idx === STATUS_STEPS.length - 1;
+
+                return (
+                  <li key={step.key} className="relative flex items-start gap-3.5">
+                    {/* Stepper Node & Connecting Line */}
+                    <div className="relative flex flex-col items-center self-stretch">
+                      <div
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
+                          isCurrent && order.status !== "COMPLETED"
+                            ? "border-2 border-caramel bg-caramel text-white shadow-sm ring-4 ring-caramel/20"
+                            : isPassed
+                            ? "border border-emerald-400 bg-emerald-100 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
+                            : "border border-border bg-card text-muted-foreground/60"
+                        }`}
+                        aria-hidden="true"
+                      >
+                        {isPassed && (!isCurrent || order.status === "COMPLETED") ? (
+                          <Check className="h-4 w-4" strokeWidth={2.5} />
+                        ) : isCurrent ? (
+                          <Clock className="h-3.5 w-3.5" />
+                        ) : (
+                          <span>{idx + 1}</span>
+                        )}
+                      </div>
+
+                      {!isLast && (
+                        <div
+                          className={`w-0.5 flex-1 min-h-6 my-1 transition-colors ${
+                            isCompleted
+                              ? "bg-emerald-500/70 dark:bg-emerald-600/70"
+                              : "bg-border"
+                          }`}
+                          aria-hidden="true"
+                        />
+                      )}
+                    </div>
+
+                    {/* Step Content */}
+                    <div className={`flex flex-col ${isLast ? "pb-1" : "pb-5"}`}>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className={`text-sm font-semibold tracking-tight ${
+                            isCurrent
+                              ? "text-foreground font-bold"
+                              : isPassed
+                              ? "text-foreground"
+                              : "text-muted-foreground/70"
+                          }`}
+                        >
+                          {step.label}
+                        </span>
+
+                        {isCurrent && order.status !== "COMPLETED" && (
+                          <span className="inline-flex items-center rounded-full bg-caramel/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-caramel">
+                            Current Step
+                          </span>
+                        )}
+                        {order.status === "COMPLETED" && idx === 4 && (
+                          <span className="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-950/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
+                            Completed
+                          </span>
+                        )}
+
+                        <span className="sr-only">
+                          {isCurrent
+                            ? "(Current step)"
+                            : isPassed
+                            ? "(Completed)"
+                            : "(Upcoming)"}
+                        </span>
+                      </div>
+
+                      <p
+                        className={`mt-0.5 text-xs leading-relaxed ${
+                          isCurrent
+                            ? "text-foreground/80 font-medium"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        {step.description}
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+
+            {/* Desktop / Tablet Horizontal Grid (>= 768px) */}
+            <div className="hidden md:grid md:grid-cols-5 md:gap-2">
               {STATUS_STEPS.map((step, idx) => {
                 const isPassed = stepIndex >= idx;
                 const isCurrent = stepIndex === idx;
@@ -215,7 +309,7 @@ export function OrderTrackingView({
                   >
                     <div className="flex items-center gap-1.5 mb-1">
                       {isPassed ? (
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" aria-hidden="true" />
                       ) : (
                         <div
                           className={`h-4 w-4 rounded-full border flex items-center justify-center text-[10px] font-semibold ${
@@ -223,6 +317,7 @@ export function OrderTrackingView({
                               ? "border-caramel text-caramel"
                               : "border-muted-foreground text-muted-foreground"
                           }`}
+                          aria-hidden="true"
                         >
                           {idx + 1}
                         </div>
