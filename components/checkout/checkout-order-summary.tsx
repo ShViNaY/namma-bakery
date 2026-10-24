@@ -101,7 +101,7 @@ export function CheckoutOrderSummary({
 
         <div className="flex justify-between border-t border-border pt-3">
           <dt className="font-semibold text-foreground text-base">
-            Estimated Total
+            Order Total
           </dt>
           <dd className="font-heading text-xl font-bold text-foreground">
             {formatPaise(subtotalPaise)}
@@ -112,7 +112,7 @@ export function CheckoutOrderSummary({
       <div className="rounded-sm border border-border/70 bg-secondary/30 p-3 text-[11px] leading-relaxed text-muted-foreground">
         <p>✓ All prices include taxes.</p>
         <p className="mt-1">
-          Final order total will be confirmed by the bakery upon submission.
+          Exact order amount. Payment is collected at the bakery during pickup.
         </p>
       </div>
     </div>
