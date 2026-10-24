@@ -12,6 +12,7 @@ import {
 } from "@/lib/menu/utils";
 import { useCart } from "@/lib/cart/context";
 import { generateCartItemKey } from "@/lib/cart/key";
+import { ProductQuantitySelector } from "./product-quantity-selector";
 
 interface CakeConfiguratorProps {
   product: {
@@ -37,6 +38,7 @@ export function CakeConfigurator({
 }: CakeConfiguratorProps) {
   const { addItem } = useCart();
   const [justAdded, setJustAdded] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     if (!justAdded) return;
@@ -171,6 +173,8 @@ export function CakeConfigurator({
 
   const isOrderable = product.is_available && product.orderable_online;
   const canAddToCart = isOrderable && currentRule !== undefined;
+  const totalPricePaise =
+    currentRule ? currentRule.price_paise * quantity : null;
 
   const handleAddToCart = () => {
     if (!canAddToCart || !currentRule) return;
@@ -197,11 +201,12 @@ export function CakeConfigurator({
       kind: "TIERED_CAKE",
       configuration,
       unitPricePaise: currentRule.price_paise,
-      quantity: 1,
+      quantity,
       leadTimeMinutes: product.lead_time_minutes,
     });
 
     setJustAdded(true);
+    setQuantity(1);
   };
 
   if (activeRules.length === 0) {
@@ -365,14 +370,26 @@ export function CakeConfigurator({
       )}
 
       {/* Add to Cart Action */}
-      <div className="border-t border-border pt-4 flex flex-col gap-3">
+      <div className="border-t border-border pt-4 flex flex-col gap-4">
+        {isOrderable && (
+          <ProductQuantitySelector
+            quantity={quantity}
+            onChange={setQuantity}
+            min={1}
+            max={20}
+            disabled={!canAddToCart}
+            productName={product.name}
+            unitPricePaise={currentRule?.price_paise ?? null}
+          />
+        )}
+
         <button
           type="button"
           disabled={!canAddToCart}
           onClick={handleAddToCart}
           aria-label={
-            currentRule
-              ? `Add ${product.name} (${formatWeightGrams(selectedWeight)}, ${formatEggType(selectedEggType)}, ${formatCakeFinish(selectedFinish)}) to cart for ${formatPaise(currentRule.price_paise)}`
+            currentRule && totalPricePaise !== null
+              ? `Add ${quantity} of ${product.name} (${formatWeightGrams(selectedWeight)}, ${formatEggType(selectedEggType)}, ${formatCakeFinish(selectedFinish)}) to cart for ${formatPaise(totalPricePaise)}`
               : "Select configuration to add to cart"
           }
           className={`flex h-12 w-full items-center justify-center gap-2 rounded-sm px-6 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel ${
@@ -389,7 +406,7 @@ export function CakeConfigurator({
               ? "Available In-Store Only"
               : !currentRule
               ? "Select Configuration"
-              : `Add to Cart • ${formatPaise(currentRule.price_paise)}`}
+              : `Add to Cart • ${formatPaise(totalPricePaise ?? currentRule.price_paise)}`}
           </span>
         </button>
 

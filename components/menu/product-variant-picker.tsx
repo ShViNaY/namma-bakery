@@ -7,6 +7,7 @@ import type { ProductVariant } from "@/lib/menu/types";
 import { formatPaise } from "@/lib/utils/money";
 import { useCart } from "@/lib/cart/context";
 import { generateCartItemKey } from "@/lib/cart/key";
+import { ProductQuantitySelector } from "./product-quantity-selector";
 
 interface ProductVariantPickerProps {
   product: {
@@ -32,6 +33,7 @@ export function ProductVariantPicker({
 }: ProductVariantPickerProps) {
   const { addItem } = useCart();
   const [justAdded, setJustAdded] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     if (!justAdded) return;
@@ -67,6 +69,9 @@ export function ProductVariantPicker({
     currentPricePaise !== null &&
     (!hasDefinedVariants || activeVariant !== undefined);
 
+  const totalPricePaise =
+    currentPricePaise !== null ? currentPricePaise * quantity : null;
+
   const handleAddToCart = () => {
     if (!canAddToCart || currentPricePaise === null) return;
 
@@ -87,11 +92,12 @@ export function ProductVariantPicker({
       variantId: activeVariant?.id,
       variantLabel: activeVariant?.label,
       unitPricePaise: currentPricePaise,
-      quantity: 1,
+      quantity,
       leadTimeMinutes: product.lead_time_minutes,
     });
 
     setJustAdded(true);
+    setQuantity(1);
   };
 
   return (
@@ -148,16 +154,28 @@ export function ProductVariantPicker({
       )}
 
       {/* Add to Cart Action */}
-      <div className="border-t border-border pt-4 flex flex-col gap-3">
+      <div className="border-t border-border pt-4 flex flex-col gap-4">
+        {isOrderable && (
+          <ProductQuantitySelector
+            quantity={quantity}
+            onChange={setQuantity}
+            min={1}
+            max={20}
+            disabled={!canAddToCart}
+            productName={product.name}
+            unitPricePaise={currentPricePaise}
+          />
+        )}
+
         <button
           type="button"
           disabled={!canAddToCart}
           onClick={handleAddToCart}
           aria-label={
-            currentPricePaise !== null
-              ? `Add ${product.name}${
+            totalPricePaise !== null
+              ? `Add ${quantity} of ${product.name}${
                   activeVariant ? ` (${activeVariant.label})` : ""
-                } to cart for ${formatPaise(currentPricePaise)}`
+                } to cart for ${formatPaise(totalPricePaise)}`
               : "Product cannot be added to cart"
           }
           className={`flex h-12 w-full items-center justify-center gap-2 rounded-sm px-6 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel ${
@@ -172,8 +190,8 @@ export function ProductVariantPicker({
               ? "Currently Unavailable"
               : !product.orderable_online
               ? "Available In-Store Only"
-              : currentPricePaise !== null
-              ? `Add to Cart • ${formatPaise(currentPricePaise)}`
+              : totalPricePaise !== null
+              ? `Add to Cart • ${formatPaise(totalPricePaise)}`
               : "Unavailable"}
           </span>
         </button>
