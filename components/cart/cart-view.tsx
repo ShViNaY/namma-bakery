@@ -72,7 +72,7 @@ export function CartView() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
+    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 pb-32 lg:pb-12">
       {/* Breadcrumb / Back Link */}
       <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-2 text-xs text-muted-foreground">
         <Link
@@ -222,7 +222,9 @@ export function CartView() {
           </div>
 
           {/* Pickup Slot Scheduling Section */}
-          <PickupSelector />
+          <div id="pickup-selector-section">
+            <PickupSelector />
+          </div>
 
           <div>
             <Link
@@ -318,6 +320,59 @@ export function CartView() {
           </div>
         </div>
       </div>
+
+      {/* Mobile-Only Sticky Bottom Checkout Action Bar */}
+      <aside
+        aria-label="Mobile checkout action bar"
+        className="fixed bottom-0 left-0 right-0 z-30 border-t border-border bg-background/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-lg backdrop-blur-md lg:hidden sm:px-6"
+      >
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-2 flex items-center justify-between text-xs">
+            <div className="flex items-baseline gap-1.5">
+              <span className="font-medium text-muted-foreground">
+                Total ({itemCount} {itemCount === 1 ? "item" : "items"}):
+              </span>
+              <span className="font-heading text-base font-bold text-foreground">
+                {formatPaise(subtotalPaise)}
+              </span>
+            </div>
+
+            {pickupDate && pickupSlot ? (
+              <span className="flex items-center gap-1 text-[11px] font-semibold text-caramel">
+                <Calendar className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="max-w-[150px] truncate sm:max-w-none">
+                  {pickupSlot.formattedTime}
+                </span>
+              </span>
+            ) : (
+              <a
+                href="#pickup-selector-section"
+                className="flex items-center gap-1 text-[11px] font-semibold text-caramel transition-colors hover:underline"
+              >
+                <Calendar className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span>Choose pickup slot ↓</span>
+              </a>
+            )}
+          </div>
+
+          {pickupDate && pickupSlot ? (
+            <Link
+              href="/checkout"
+              className="flex min-h-[48px] h-12 w-full items-center justify-center rounded-sm bg-caramel text-sm font-semibold text-white shadow-sm transition-colors hover:bg-caramel/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+            >
+              Proceed to Checkout →
+            </Link>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="flex min-h-[48px] h-12 w-full items-center justify-center rounded-sm bg-muted text-xs sm:text-sm font-semibold text-muted-foreground cursor-not-allowed"
+            >
+              Select a Pickup Slot to Continue
+            </button>
+          )}
+        </div>
+      </aside>
     </div>
   );
 }
