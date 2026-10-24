@@ -32,6 +32,7 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
+import { DemoBanner } from "@/components/layout/demo-banner";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { CartProvider } from "@/lib/cart/context";
@@ -118,6 +119,7 @@ export default function RootLayout({
           Skip to main content
         </a>
         <CartProvider>
+          <DemoBanner />
           <Header />
           <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
             {children}
