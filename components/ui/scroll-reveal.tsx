@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 interface ScrollRevealProps {
@@ -24,11 +24,13 @@ export function ScrollReveal({
   threshold = 0.1,
   as: Component = "div",
 }: ScrollRevealProps) {
-  const [isRevealed, setIsRevealed] = useState(false);
   const elementRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // If reduced motion is preferred, CSS already displays the element fully; no observer needed
+    const node = elementRef.current;
+    if (!node) return;
+
+    // Respect user's reduced-motion preference: keep visible with no entrance animations
     const prefersReducedMotion =
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -37,18 +39,38 @@ export function ScrollReveal({
       return;
     }
 
-    const node = elementRef.current;
-    if (!node) return;
-
+    // Fallback if IntersectionObserver is unsupported: keep visible
     if (!("IntersectionObserver" in window)) {
       return;
     }
+
+    // Check if element is already within (or above) the viewport
+    const rect = node.getBoundingClientRect();
+    const windowHeight =
+      window.innerHeight || document.documentElement.clientHeight;
+
+    // If element is already in the viewport (or scrolled past), keep visible
+    if (rect.top <= windowHeight - 30 || rect.bottom <= 0) {
+      return;
+    }
+
+    // Element is genuinely off-screen below the viewport: arm for entrance animation
+    node.setAttribute("data-reveal", "hidden");
+
+    // Fallback safety timeout: ensure content becomes visible even if observer fails or stalls
+    const fallbackTimer = setTimeout(() => {
+      node.setAttribute("data-reveal", "visible");
+    }, 3500);
 
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
         if (entry && entry.isIntersecting) {
-          setIsRevealed(true);
+          clearTimeout(fallbackTimer);
+          if (delayMs > 0) {
+            node.style.transitionDelay = `${delayMs}ms`;
+          }
+          node.setAttribute("data-reveal", "visible");
           observer.disconnect();
         }
       },
@@ -61,23 +83,15 @@ export function ScrollReveal({
     observer.observe(node);
 
     return () => {
+      clearTimeout(fallbackTimer);
       observer.disconnect();
     };
-  }, [threshold]);
+  }, [delayMs, threshold]);
 
   return (
     <Component
       ref={elementRef}
-      style={{
-        transitionDelay: isRevealed && delayMs > 0 ? `${delayMs}ms` : undefined,
-      }}
-      className={cn(
-        "transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
-        isRevealed
-          ? "opacity-100 translate-y-0"
-          : "opacity-0 translate-y-4 motion-reduce:opacity-100 motion-reduce:translate-y-0",
-        className
-      )}
+      className={cn("scroll-reveal", className)}
     >
       {children}
     </Component>
