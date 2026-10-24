@@ -69,14 +69,6 @@ export function Footer() {
                   Track Order
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/staff/login"
-                  className="inline-flex min-h-[40px] items-center text-xs text-muted-foreground/75 transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
-                >
-                  Staff Portal
-                </Link>
-              </li>
             </ul>
           </div>
         </div>
@@ -88,7 +80,7 @@ export function Footer() {
               href="/staff/login"
               className="hover:text-caramel transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
             >
-              Staff &amp; Admin Access
+              Staff Portal
             </Link>
           </div>
         </div>
