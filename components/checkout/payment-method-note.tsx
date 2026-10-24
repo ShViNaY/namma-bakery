@@ -16,7 +16,7 @@ export function PaymentMethodNote() {
           Pay at Bakery Counter
         </p>
         <p className="mt-1 leading-relaxed text-amber-900/90 dark:text-amber-300/90">
-          Online payment gateway integration is currently in progress and coming soon. For all orders, payment is collected in person at the bakery counter during pickup.
+          Payment is currently collected at the bakery when you pick up your order. Online payment will be available soon.
         </p>
       </div>
 
