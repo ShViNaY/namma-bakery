@@ -38,3 +38,15 @@ export const pickupSelectionSchema = z.object({
 
 export type ValidatedPickupSlot = z.infer<typeof pickupSlotSchema>;
 export type ValidatedPickupSelection = z.infer<typeof pickupSelectionSchema>;
+
+/**
+ * Validates public store status payload, ensuring no internal capacity or administrative fields leak.
+ */
+export const publicStoreStatusSchema = z.object({
+  location_id: z.string().uuid().optional(),
+  orders_paused_until: z.string().nullable().optional(),
+  pause_message: z.string().nullable().optional(),
+  slot_minutes: z.number().int().positive().optional(),
+}).strict();
+
+export type ValidatedPublicStoreStatus = z.infer<typeof publicStoreStatusSchema>;

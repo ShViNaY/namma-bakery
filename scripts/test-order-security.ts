@@ -25,6 +25,7 @@ import {
   adminStoreSettingsSchema,
   adminStaffRoleSchema,
 } from "../lib/admin/validation";
+import { publicStoreStatusSchema } from "../lib/pickup/validation";
 
 let passedCount = 0;
 let failedCount = 0;
@@ -572,6 +573,78 @@ for (let i = 0; i < staffMax; i++) {
 }
 const staffBlocked = checkRateLimit({ key: staffKey, maxRequests: staffMax, windowMs: staffWindow });
 assert(!staffBlocked.allowed, "Staff Login: Reject 6th login attempt within 5 minutes (brute-force defense)");
+
+// --- 9. Public Store Status Exposure Boundaries ---
+console.log("\n--- 9. Public Store Status Exposure Boundaries ---");
+
+const validPublicStatus = {
+  location_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+  orders_paused_until: "2026-10-25T16:00:00.000Z",
+  pause_message: "Taking orders shortly!",
+  slot_minutes: 30,
+};
+
+assert(
+  publicStoreStatusSchema.safeParse(validPublicStatus).success,
+  "Store Status: Accept valid public store status payload"
+);
+
+assert(
+  publicStoreStatusSchema.safeParse({
+    orders_paused_until: null,
+    pause_message: null,
+    slot_minutes: 30,
+  }).success,
+  "Store Status: Accept unpaused store status with null pause info"
+);
+
+assert(
+  !publicStoreStatusSchema.safeParse({
+    ...validPublicStatus,
+    max_orders_per_slot: 6, // Leaked internal capacity
+  }).success,
+  "Store Status: Reject payload exposing internal capacity (max_orders_per_slot)"
+);
+
+assert(
+  !publicStoreStatusSchema.safeParse({
+    ...validPublicStatus,
+    max_custom_per_day: 4, // Leaked internal capacity
+  }).success,
+  "Store Status: Reject payload exposing internal capacity (max_custom_per_day)"
+);
+
+assert(
+  !publicStoreStatusSchema.safeParse({
+    ...validPublicStatus,
+    quote_validity_hours: 24, // Leaked business rule
+  }).success,
+  "Store Status: Reject payload exposing quote_validity_hours"
+);
+
+assert(
+  !publicStoreStatusSchema.safeParse({
+    ...validPublicStatus,
+    max_open_orders_per_phone: 3, // Leaked anti-abuse threshold
+  }).success,
+  "Store Status: Reject payload exposing max_open_orders_per_phone"
+);
+
+assert(
+  !publicStoreStatusSchema.safeParse({
+    ...validPublicStatus,
+    cancel_cutoff_hours: 4, // Leaked operational threshold
+  }).success,
+  "Store Status: Reject payload exposing cancel_cutoff_hours"
+);
+
+assert(
+  !publicStoreStatusSchema.safeParse({
+    ...validPublicStatus,
+    pending_alert_minutes: 15, // Leaked operational threshold
+  }).success,
+  "Store Status: Reject payload exposing pending_alert_minutes"
+);
 
 
 console.log("\n========================================================");
