@@ -6,8 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "test:security": "npx tsx scripts/test-order-security.ts"
+    "lint": "eslint .",
+    "test:security": "npx tsx scripts/test-order-security.ts",
+    "images:optimize": "node scripts/optimize-product-images.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

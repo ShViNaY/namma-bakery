@@ -116,6 +116,7 @@ export default async function ProductDetailPage({
             productName={product.name}
             kind={product.kind}
             categorySlug={category?.slug}
+            productSlug={product.slug}
           />
 
           {/* Bakery Kitchen & Counter Pickup Note */}

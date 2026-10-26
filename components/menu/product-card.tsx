@@ -4,6 +4,7 @@ import { Cake, Clock, UtensilsCrossed, Soup } from "lucide-react";
 import type { Product } from "@/lib/menu/types";
 import { formatPaise } from "@/lib/utils/money";
 import { hasMultiplePrices } from "@/lib/menu/utils";
+import { resolvePrimaryProductImage } from "@/lib/menu/product-images";
 
 interface ProductCardProps {
   product: Product;
@@ -29,16 +30,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const showFromPrice = hasMultiplePrices(product);
   const categorySlug = product.category?.slug ?? "cakes";
 
-  const primaryImage =
-    product.product_images?.find((img) => img.is_primary) ??
-    product.product_images?.[0];
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const imageUrl = primaryImage
-    ? primaryImage.storage_path.startsWith("http")
-      ? primaryImage.storage_path
-      : `${supabaseUrl}/storage/v1/object/public/product-images/${primaryImage.storage_path}`
-    : null;
+  const { url: imageUrl, alt: imageAlt } = resolvePrimaryProductImage(product);
 
   return (
     <Link
@@ -50,10 +42,10 @@ export function ProductCard({ product }: ProductCardProps) {
         {imageUrl ? (
           <Image
             src={imageUrl}
-            alt={primaryImage?.alt_text || product.name}
+            alt={imageAlt}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover transition-transform duration-500 ease-out sm:group-hover:scale-[1.025]"
+            className="object-cover object-center transition-transform duration-500 ease-out sm:group-hover:scale-[1.025]"
           />
         ) : (
           <div className="p-6">

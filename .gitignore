@@ -42,3 +42,6 @@ yarn-error.log*
 next-env.d.ts
 
 References/
+
+# Local source product images archive
+assets/source-product-images/
