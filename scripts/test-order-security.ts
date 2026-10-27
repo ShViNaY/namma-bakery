@@ -10,6 +10,8 @@
  * 6. Rate limiter correctly enforces sliding window limits and rejects abusive bursts.
  */
 
+import fs from "node:fs";
+import path from "node:path";
 import { placeOrderInputSchema, lookupOrderTokenSchema } from "../lib/orders/validation";
 import {
   customCakeFormSchema,
@@ -17,6 +19,7 @@ import {
   validateImageMagicBytes,
 } from "../lib/custom-cake/validation";
 import { checkRateLimit } from "../lib/security/rate-limiter";
+import { DEFAULT_LOCATION_SLUG } from "../lib/pickup/queries";
 import {
   adminCategorySchema,
   adminProductSchema,
@@ -645,6 +648,78 @@ assert(
   }).success,
   "Store Status: Reject payload exposing pending_alert_minutes"
 );
+
+// --- 10. Service Role Location Permission & Migration Integrity ---
+console.log("\n--- 10. Service Role Location Permission & Migration Integrity ---");
+
+const workspaceRoot = path.resolve(__dirname, "..");
+const migration0006Path = path.join(workspaceRoot, "supabase", "migrations", "0006_grant_service_role_locations_read.sql");
+const test005Path = path.join(workspaceRoot, "supabase", "tests", "005_locations_permission.test.sql");
+const seedSqlPath = path.join(workspaceRoot, "supabase", "seed.sql");
+const orderActionPath = path.join(workspaceRoot, "lib", "orders", "actions.ts");
+const cakeActionPath = path.join(workspaceRoot, "lib", "custom-cake", "actions.ts");
+
+assert(fs.existsSync(migration0006Path), "Migration 0006 exists in supabase/migrations/");
+
+const migration0006Content = fs.existsSync(migration0006Path)
+  ? fs.readFileSync(migration0006Path, "utf-8")
+  : "";
+
+assert(
+  /grant\s+select\s+on\s+(table\s+)?public\.locations\s+to\s+service_role/i.test(migration0006Content),
+  "Migration 0006 grants SELECT on public.locations to service_role"
+);
+
+assert(
+  !/grant\s+(insert|update|delete|all)\s+on/i.test(migration0006Content),
+  "Migration 0006 enforces least-privilege (no INSERT/UPDATE/DELETE/ALL granted)"
+);
+
+assert(fs.existsSync(test005Path), "Database test 005_locations_permission.test.sql exists");
+
+const test005Content = fs.existsSync(test005Path)
+  ? fs.readFileSync(test005Path, "utf-8")
+  : "";
+
+assert(
+  test005Content.includes("has_table_privilege('service_role', 'public.locations', 'SELECT')"),
+  "Database test 005 asserts service_role SELECT privilege on public.locations"
+);
+
+const seedSqlContent = fs.existsSync(seedSqlPath)
+  ? fs.readFileSync(seedSqlPath, "utf-8")
+  : "";
+
+assert(
+  seedSqlContent.includes(`'${DEFAULT_LOCATION_SLUG}'`),
+  `DEFAULT_LOCATION_SLUG ('${DEFAULT_LOCATION_SLUG}') matches seed data location slug`
+);
+
+const orderActionContent = fs.readFileSync(orderActionPath, "utf-8");
+const cakeActionContent = fs.readFileSync(cakeActionPath, "utf-8");
+
+assert(
+  !orderActionContent.includes(".limit(1)"),
+  "placeOrderAction does not use arbitrary fallback location (.limit(1) removed)"
+);
+
+assert(
+  !cakeActionContent.includes(".limit(1)"),
+  "submitCustomCakeRequestAction does not use arbitrary fallback location (.limit(1) removed)"
+);
+
+assert(
+  orderActionContent.includes('.eq("slug", DEFAULT_LOCATION_SLUG)') &&
+    orderActionContent.includes('.eq("is_active", true)'),
+  "placeOrderAction requires both DEFAULT_LOCATION_SLUG and is_active=true"
+);
+
+assert(
+  cakeActionContent.includes('.eq("slug", DEFAULT_LOCATION_SLUG)') &&
+    cakeActionContent.includes('.eq("is_active", true)'),
+  "submitCustomCakeRequestAction requires both DEFAULT_LOCATION_SLUG and is_active=true"
+);
+
 
 
 console.log("\n========================================================");

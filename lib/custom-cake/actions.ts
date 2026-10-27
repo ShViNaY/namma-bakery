@@ -100,31 +100,37 @@ export async function submitCustomCakeRequestAction(
   try {
     const supabase = createAdminClient();
 
-    // 4. Resolve bakery location ID
-    const { data: locData } = await supabase
-      .from("locations")
-      .select("id")
-      .eq("slug", DEFAULT_LOCATION_SLUG)
-      .eq("is_active", true)
-      .maybeSingle();
+    // 4. Resolve configured bakery location ID authoritatively using admin client
+    const { data: locationData, error: locationError } = await supabase
+       .from("locations")
+       .select("id")
+       .eq("slug", DEFAULT_LOCATION_SLUG)
+       .eq("is_active", true)
+       .maybeSingle();
 
-    let locationId = locData?.id;
-    if (!locationId) {
-      const { data: fallbackLoc } = await supabase
-        .from("locations")
-        .select("id")
-        .eq("is_active", true)
-        .limit(1)
-        .maybeSingle();
-      locationId = fallbackLoc?.id;
-    }
-
-    if (!locationId) {
+    if (locationError) {
+      console.error("[submitCustomCakeRequestAction] Database error querying location:", {
+        slug: DEFAULT_LOCATION_SLUG,
+        message: locationError.message,
+        code: locationError.code,
+      });
       return {
         success: false,
         error: "Bakery location could not be resolved. Please try again later.",
       };
     }
+
+    if (!locationData?.id) {
+      console.error("[submitCustomCakeRequestAction] Active bakery location not found:", {
+        slug: DEFAULT_LOCATION_SLUG,
+      });
+      return {
+        success: false,
+        error: "Bakery location could not be resolved. Please try again later.",
+      };
+    }
+
+    const locationId = locationData.id;
 
     // 5. Identify authenticated customer if logged in
     let customerId: string | null = null;
