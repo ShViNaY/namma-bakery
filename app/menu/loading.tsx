@@ -13,7 +13,7 @@ export default function MenuLoading() {
         {Array.from({ length: 5 }).map((_, i) => (
           <div
             key={i}
-            className="h-12 w-28 shrink-0 rounded-sm border border-border bg-card/60"
+            className="h-10 w-28 shrink-0 rounded-sm border border-border bg-card/60"
           />
         ))}
       </div>

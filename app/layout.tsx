@@ -35,6 +35,7 @@ const geistMono = Geist_Mono({
 import { DemoBanner } from "@/components/layout/demo-banner";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { RecommendationWidget } from "@/components/layout/recommendation-widget";
 import { CartProvider } from "@/lib/cart/context";
 import { getBaseUrl } from "@/lib/utils/seo";
 
@@ -125,6 +126,7 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
+          <RecommendationWidget />
         </CartProvider>
       </body>
     </html>

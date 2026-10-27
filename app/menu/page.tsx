@@ -41,40 +41,42 @@ export default async function MenuPage() {
   const products = productsResult.data;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
-      {/* Header */}
-      <div className="mb-8">
-        <span className="font-kannada text-xs font-medium text-caramel">
-          ನಮ್ಮ ಬೇಕರಿ ಮೆನು
-        </span>
-        <h1 className="font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-          Bakery Menu
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground sm:text-base">
-          Fresh celebration cakes, savoury snacks, and neighbourhood classics.
-        </p>
+    <div className="py-8 sm:py-12">
+      {/* Introduction & Custom Cake Promotional Section (Scrolls away normally) */}
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="mb-6 sm:mb-8">
+          <span className="font-kannada text-xs font-medium text-caramel">
+            ನಮ್ಮ ಬೇಕರಿ ಮೆನು
+          </span>
+          <h1 className="font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            Bakery Menu
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground sm:text-base">
+            Fresh celebration cakes, savoury snacks, and neighbourhood classics.
+          </p>
+        </div>
+
+        {/* Custom Cake Enquiry Banner */}
+        <CustomCakeBanner />
       </div>
 
-      {/* Category Navigation */}
+      {/* Sticky Category Navigation */}
       {categories.length > 0 && (
-        <div className="mb-8 border-b border-border pb-4">
-          <CategoryNav categories={categories} />
-        </div>
+        <CategoryNav categories={categories} />
       )}
-
-      {/* Custom Cake Enquiry Banner */}
-      <CustomCakeBanner />
 
       {/* Product Catalog */}
-      {products.length === 0 ? (
-        <MenuEmptyState
-          title="No menu items currently listed"
-          message="We are currently updating our digital menu with fresh items. Please visit us in store or check back soon."
-          showAllLink={false}
-        />
-      ) : (
-        <ProductGrid products={products} />
-      )}
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 mt-8">
+        {products.length === 0 ? (
+          <MenuEmptyState
+            title="No menu items currently listed"
+            message="We are currently updating our digital menu with fresh items. Please visit us in store or check back soon."
+            showAllLink={false}
+          />
+        ) : (
+          <ProductGrid products={products} />
+        )}
+      </div>
     </div>
   );
 }
