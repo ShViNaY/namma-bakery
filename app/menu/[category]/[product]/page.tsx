@@ -216,7 +216,7 @@ export default async function ProductDetailPage({
           <div className="pt-2 border-t border-border">
             <Link
               href={category ? `/menu/${category.slug}` : "/menu"}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-caramel"
+              className="inline-flex min-h-[48px] items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               <span>

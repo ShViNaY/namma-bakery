@@ -42,7 +42,7 @@ export function CategoryNav({ categories, activeSlug, className }: CategoryNavPr
             ref={isAllActive ? activeTabRef : undefined}
             href="/menu"
             className={cn(
-              "flex h-10 shrink-0 items-center justify-center rounded-sm px-3.5 text-xs sm:text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel",
+              "flex min-h-[48px] shrink-0 items-center justify-center rounded-sm px-4 py-2.5 text-xs sm:text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel",
               isAllActive
                 ? "bg-primary text-primary-foreground shadow-xs"
                 : "border border-border bg-card text-foreground hover:bg-secondary hover:text-caramel"
@@ -59,7 +59,7 @@ export function CategoryNav({ categories, activeSlug, className }: CategoryNavPr
                 ref={isActive ? activeTabRef : undefined}
                 href={`/menu/${category.slug}`}
                 className={cn(
-                  "flex h-10 shrink-0 items-center gap-1.5 sm:gap-2 rounded-sm px-3.5 text-xs sm:text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel",
+                  "flex min-h-[48px] shrink-0 items-center gap-1.5 sm:gap-2 rounded-sm px-4 py-2.5 text-xs sm:text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel",
                   isActive
                     ? "bg-primary text-primary-foreground shadow-xs"
                     : "border border-border bg-card text-foreground hover:bg-secondary hover:text-caramel"

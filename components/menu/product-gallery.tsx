@@ -81,6 +81,8 @@ export function ProductGallery({
                 key={img.id}
                 type="button"
                 onClick={() => setSelectedIndex(idx)}
+                aria-label={`View photo ${idx + 1} of ${productName}${isSelected ? " (selected)" : ""}`}
+                aria-pressed={isSelected}
                 className={`relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-sm border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel ${
                   isSelected
                     ? "border-caramel ring-1 ring-caramel"

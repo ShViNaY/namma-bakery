@@ -340,7 +340,7 @@ export function CustomCakeForm() {
             <legend className="block text-xs font-semibold uppercase tracking-wider text-foreground">
               Egg Preference <span className="text-destructive">*</span>
             </legend>
-            <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Select egg preference">
+            <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-2" role="radiogroup" aria-label="Select egg preference">
               <button
                 type="button"
                 role="radio"
@@ -455,7 +455,7 @@ export function CustomCakeForm() {
             <button
               type="button"
               onClick={() => setIsCustomWeight(!isCustomWeight)}
-              className="text-xs font-semibold text-caramel hover:underline"
+              className="inline-flex min-h-[48px] items-center text-xs font-semibold text-caramel hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
             >
               {isCustomWeight ? "← Choose preset weight" : "Need a different weight (e.g. 4 kg or 10 kg)?"}
             </button>
@@ -469,7 +469,7 @@ export function CustomCakeForm() {
                   placeholder="e.g. 4000"
                   value={customWeightInput}
                   onChange={(e) => setCustomWeightInput(e.target.value)}
-                  className="w-full min-h-[42px] rounded-sm border border-border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                  className="w-full min-h-[48px] rounded-sm border border-border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
                 />
                 <span className="text-xs font-semibold text-muted-foreground">grams</span>
               </div>

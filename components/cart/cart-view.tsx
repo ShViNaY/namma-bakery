@@ -77,7 +77,7 @@ export function CartView() {
       <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-2 text-xs text-muted-foreground">
         <Link
           href="/menu"
-          className="inline-flex items-center gap-1 transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
+          className="inline-flex min-h-[48px] items-center gap-1.5 transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           <span>Continue Shopping</span>
@@ -234,7 +234,7 @@ export function CartView() {
           <div>
             <Link
               href="/menu"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-caramel"
+              className="inline-flex min-h-[48px] items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               <span>Continue shopping to add more treats</span>

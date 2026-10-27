@@ -95,7 +95,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         <div className="mb-6">
           <Link
             href="/menu"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-caramel"
+            className="inline-flex min-h-[48px] items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>All Menu Categories</span>

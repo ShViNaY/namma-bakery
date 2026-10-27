@@ -183,7 +183,7 @@ export function RecommendationWidget() {
                   triggerRef.current?.focus();
                 }}
                 aria-label="Close recommendations panel"
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                className="flex h-12 w-12 min-h-[48px] min-w-[48px] shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
               >
                 <X className="size-4" aria-hidden="true" />
               </button>
@@ -255,7 +255,7 @@ export function RecommendationWidget() {
             onClick={() => setIsOpen((prev) => !prev)}
             aria-expanded={isOpen}
             aria-haspopup="dialog"
-            className="flex min-h-[44px] items-center gap-2 py-2.5 pl-4 pr-3 text-xs sm:text-sm font-medium text-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel rounded-l-full cursor-pointer"
+            className="flex min-h-[48px] items-center gap-2 py-3 pl-4 pr-3 text-xs sm:text-sm font-medium text-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel rounded-l-full cursor-pointer"
           >
             <Sparkles className="size-4 text-caramel shrink-0 animate-pulse" aria-hidden="true" />
             <span>Need help choosing?</span>
@@ -266,9 +266,9 @@ export function RecommendationWidget() {
             onClick={handleDismissPrompt}
             aria-label="Dismiss recommendation prompt"
             title="Dismiss recommendation prompt"
-            className="group/dismiss flex h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-r-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel cursor-pointer"
+            className="group/dismiss flex h-12 w-12 min-h-[48px] min-w-[48px] shrink-0 items-center justify-center rounded-r-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel cursor-pointer"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-foreground border border-border/80 shadow-2xs transition-all group-hover/dismiss:bg-muted group-hover/dismiss:border-caramel/40 group-active/dismiss:scale-95">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-foreground border border-border/80 shadow-2xs transition-all group-hover/dismiss:bg-muted group-hover/dismiss:border-caramel/40 group-active/dismiss:scale-95">
               <X className="size-4 stroke-[2.5]" aria-hidden="true" />
             </span>
           </button>

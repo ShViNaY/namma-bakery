@@ -26,7 +26,7 @@ export function PickupSlotPicker({
           <Clock className="h-4 w-4 text-caramel" aria-hidden="true" />
           <span>2. Select Pickup Time Slot</span>
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+        <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
           {Array.from({ length: 8 }).map((_, idx) => (
             <div
               key={idx}
@@ -76,7 +76,7 @@ export function PickupSlotPicker({
         <div
           role="group"
           aria-labelledby="pickup-slot-label"
-          className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4"
+          className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4"
         >
           {slots.map((slot: PickupSlot) => {
             const isSelected = selectedSlot?.slotStart === slot.slotStart;

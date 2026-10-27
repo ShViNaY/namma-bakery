@@ -37,17 +37,17 @@ export function ProductQuantitySelector({
     }
   };
 
-  const inputId = `qty-${productName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+  const labelId = `qty-label-${productName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 
   return (
     <div className="flex items-center justify-between gap-4">
       <div className="flex flex-col">
-        <label
-          htmlFor={inputId}
+        <span
+          id={labelId}
           className="text-xs font-medium uppercase tracking-wider text-foreground"
         >
           Quantity
-        </label>
+        </span>
         {quantity > 1 && typeof unitPricePaise === "number" && unitPricePaise > 0 ? (
           <span className="text-[11px] text-muted-foreground">
             {formatPaise(unitPricePaise)} each
@@ -60,8 +60,8 @@ export function ProductQuantitySelector({
       </div>
 
       <div
-        id={inputId}
         role="group"
+        aria-labelledby={labelId}
         aria-label={`Quantity selector for ${productName}`}
         className="inline-flex items-center rounded-sm border border-border bg-background"
       >

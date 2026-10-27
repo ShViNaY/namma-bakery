@@ -116,7 +116,7 @@ export function StoreInfo() {
                       <p className="text-[11px] text-muted-foreground">Follow live status with your order number.</p>
                     </div>
                     <Link
-                      href="/track"
+                      href="/orders"
                       className="inline-flex min-h-[48px] items-center gap-1.5 text-xs font-semibold text-caramel transition-colors hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
                     >
                       <Search className="h-3.5 w-3.5" />

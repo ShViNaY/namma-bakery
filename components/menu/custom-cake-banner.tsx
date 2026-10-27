@@ -63,9 +63,9 @@ export function CustomCakeBanner() {
         onClick={handleDismiss}
         aria-label="Dismiss custom cake promotion"
         title="Dismiss custom cake promotion"
-        className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 flex h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel cursor-pointer"
+        className="absolute top-2 right-2 sm:top-3 sm:right-3 flex h-12 w-12 min-h-[48px] min-w-[48px] shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel cursor-pointer"
       >
-        <span className="flex h-7 w-7 items-center justify-center rounded-sm bg-secondary/60 text-foreground/80 border border-border/60 transition-colors hover:bg-secondary hover:text-foreground">
+        <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-secondary/60 text-foreground/80 border border-border/60 transition-colors hover:bg-secondary hover:text-foreground">
           <X className="size-4 stroke-[2.2]" aria-hidden="true" />
         </span>
       </button>
@@ -86,7 +86,7 @@ export function CustomCakeBanner() {
       <div className="shrink-0 w-full sm:w-auto">
         <Link
           href="/custom-cake"
-          className="inline-flex h-11 w-full sm:w-auto items-center justify-center gap-2 rounded-sm bg-caramel px-5 text-xs font-semibold text-white transition-colors hover:bg-caramel/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+          className="inline-flex min-h-[48px] h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-sm bg-caramel px-5 text-xs font-semibold text-white transition-colors hover:bg-caramel/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
         >
           <HeartHandshake className="size-4" aria-hidden="true" />
           <span>Enquire for Custom Cake</span>

@@ -48,7 +48,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/menu"
-                  className="inline-flex min-h-[40px] items-center text-muted-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                  className="inline-flex min-h-[48px] items-center text-muted-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
                 >
                   Bakery Menu
                 </Link>
@@ -56,7 +56,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/custom-cake"
-                  className="inline-flex min-h-[40px] items-center text-muted-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                  className="inline-flex min-h-[48px] items-center text-muted-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
                 >
                   Custom Cakes
                 </Link>
@@ -64,7 +64,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/orders"
-                  className="inline-flex min-h-[40px] items-center text-muted-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                  className="inline-flex min-h-[48px] items-center text-muted-foreground transition-colors hover:text-caramel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
                 >
                   Track Order
                 </Link>
@@ -78,7 +78,7 @@ export function Footer() {
           <div className="flex items-center gap-4">
             <Link
               href="/staff/login"
-              className="hover:text-caramel transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
+              className="inline-flex min-h-[48px] items-center hover:text-caramel transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
             >
               Staff Portal
             </Link>
