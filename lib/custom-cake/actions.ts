@@ -14,6 +14,8 @@ const DEFAULT_LOCATION_SLUG = "namma-bakery-rr-nagar";
 
 export interface CustomCakeSubmitResult {
   success: boolean;
+  requestId?: string;
+  id?: string;
   requestNumber?: string;
   token?: string;
   error?: string;
@@ -136,10 +138,8 @@ export async function submitCustomCakeRequestAction(
     let customerId: string | null = null;
     try {
       const serverAuth = await createServerClient();
-      const {
-        data: { user },
-      } = await serverAuth.auth.getUser();
-      if (user?.id) customerId = user.id;
+      const userRes = await serverAuth.auth.getUser().catch(() => ({ data: { user: null }, error: null }));
+      if (userRes.data?.user?.id) customerId = userRes.data.user.id;
     } catch {
       customerId = null;
     }
@@ -249,6 +249,8 @@ export async function submitCustomCakeRequestAction(
 
     return {
       success: true,
+      requestId,
+      id: requestId,
       requestNumber,
       token: publicToken,
     };
@@ -265,7 +267,7 @@ export async function submitCustomCakeRequestAction(
  * Retrieves public confirmation & tracking details for a custom cake request using its public token.
  *
  * Security:
- * - Public token required
+ * - Secret unguessable public capability token required
  * - Omits sensitive customer PII (full phone, full surname, email)
  * - Returns signed URL for reference image
  */
@@ -276,100 +278,44 @@ export async function getCustomCakePublicViewAction(
     return { success: false, error: "Invalid tracking token format." };
   }
 
+  const trimmed = token.trim();
+
   try {
     const supabase = createAdminClient();
 
-    // 1. Fetch from custom_cake_requests by public_token
-    const { data: requestRow, error: reqError } = await supabase
-      .from("custom_cake_requests")
-      .select(`
-        id,
-        request_number,
-        public_token,
-        customer_name,
-        flavour,
-        egg_type,
-        weight_grams,
-        shape,
-        cake_type,
-        message_on_cake,
-        description,
-        preferred_pickup_at,
-        additional_notes,
-        status,
-        decline_reason,
-        created_at,
-        custom_cake_images (
-          storage_path,
-          mime_type
-        ),
-        custom_cake_quotes (
-          price_paise,
-          confirmed_pickup_at,
-          bakery_note,
-          valid_until,
-          superseded_at
-        ),
-        request_messages (
-          sender,
-          body,
-          created_at
-        )
-      `)
-      .eq("public_token", token.trim())
-      .maybeSingle();
+    // 1. Fetch from custom_cake_requests via database SECURITY DEFINER function
+    const { data: rpcData, error: rpcError } = await supabase.rpc(
+      "get_request_by_token",
+      { p_token: trimmed }
+    );
 
-    if (reqError || !requestRow) {
+    if (rpcError || !rpcData) {
+      if (rpcError) {
+        console.error("[getCustomCakePublicViewAction] RPC query error:", rpcError.message);
+      }
       return { success: false, error: "Custom cake request not found." };
     }
 
-    // 2. Generate signed URL for reference image if available
-    let referenceImageUrl: string | null = null;
-    const firstImg = requestRow.custom_cake_images?.[0];
-    if (firstImg?.storage_path) {
-      const { data: signedData } = await supabase.storage
-        .from("cake-references")
-        .createSignedUrl(firstImg.storage_path, 3600);
-      referenceImageUrl = signedData?.signedUrl || null;
-    }
-
-    // 3. Current active quote if any
-    const activeQuote = requestRow.custom_cake_quotes?.find(
-      (q: { superseded_at?: string | null }) => !q.superseded_at
-    );
-
-    // 4. Construct privacy-safe response
-    const firstName = requestRow.customer_name.split(" ")[0] || requestRow.customer_name;
-
+    // 2. Construct privacy-safe response from RPC data
     const publicView: CustomCakePublicView = {
-      request_number: requestRow.request_number,
-      status: requestRow.status,
-      first_name: firstName,
-      flavour: requestRow.flavour,
-      egg_type: requestRow.egg_type,
-      weight_grams: requestRow.weight_grams,
-      shape: requestRow.shape,
-      cake_type: requestRow.cake_type,
-      message_on_cake: requestRow.message_on_cake,
-      description: requestRow.description,
-      preferred_pickup_at: requestRow.preferred_pickup_at,
-      additional_notes: requestRow.additional_notes,
-      decline_reason: requestRow.decline_reason,
-      created_at: requestRow.created_at,
-      reference_image_url: referenceImageUrl,
-      quote: activeQuote
-        ? {
-            price_paise: activeQuote.price_paise,
-            confirmed_pickup_at: activeQuote.confirmed_pickup_at,
-            bakery_note: activeQuote.bakery_note,
-            valid_until: activeQuote.valid_until,
-          }
-        : null,
-      messages: requestRow.request_messages?.map((m: { sender: "CUSTOMER" | "STAFF"; body: string; created_at: string }) => ({
-        sender: m.sender,
-        body: m.body,
-        at: m.created_at,
-      })),
+      request_number: rpcData.request_number,
+      status: rpcData.status,
+      first_name: rpcData.first_name,
+      flavour: rpcData.flavour,
+      egg_type: rpcData.egg_type,
+      weight_grams: rpcData.weight_grams,
+      shape: rpcData.shape || null,
+      cake_type: rpcData.cake_type || null,
+      message_on_cake: rpcData.message_on_cake || null,
+      description: rpcData.description || null,
+      preferred_pickup_at: rpcData.preferred_pickup_at,
+      additional_notes: rpcData.additional_notes || null,
+      decline_reason: rpcData.decline_reason || null,
+      created_at: rpcData.created_at || null,
+      reference_image_url: null,
+      quote: rpcData.quote || null,
+      messages: rpcData.messages || [],
+      order_token: rpcData.order_token || null,
     };
 
     return { success: true, data: publicView };

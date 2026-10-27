@@ -109,8 +109,14 @@ export function CustomCakeForm() {
   // UI state
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const [descriptionError, setDescriptionError] = React.useState<string | null>(null);
+  const [nameError, setNameError] = React.useState<string | null>(null);
+  const [phoneError, setPhoneError] = React.useState<string | null>(null);
 
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const descriptionRef = React.useRef<HTMLTextAreaElement | null>(null);
+  const nameRef = React.useRef<HTMLInputElement | null>(null);
+  const phoneRef = React.useRef<HTMLInputElement | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -143,21 +149,36 @@ export function CustomCakeForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
+    setDescriptionError(null);
+    setNameError(null);
+    setPhoneError(null);
 
     // Basic client checks
     if (!customerName.trim() || customerName.trim().length < 2) {
-      setErrorMessage("Please enter your name (at least 2 characters).");
+      const msg = "Please enter your name (at least 2 characters).";
+      setNameError(msg);
+      setErrorMessage(msg);
+      nameRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      nameRef.current?.focus();
       return;
     }
 
     const cleanPhone = customerPhone.replace(/[\s\-]/g, "");
     if (!/^(\+91|91|0)?[6-9]\d{9}$/.test(cleanPhone)) {
-      setErrorMessage("Please enter a valid 10-digit Indian mobile number.");
+      const msg = "Please enter a valid 10-digit Indian mobile number.";
+      setPhoneError(msg);
+      setErrorMessage(msg);
+      phoneRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      phoneRef.current?.focus();
       return;
     }
 
     if (!description.trim() || description.trim().length < 10) {
-      setErrorMessage("Please describe your design or theme idea (at least 10 characters).");
+      const msg = "Please describe your design or theme idea (at least 10 characters).";
+      setDescriptionError(msg);
+      setErrorMessage(msg);
+      descriptionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      descriptionRef.current?.focus();
       return;
     }
 
@@ -211,7 +232,7 @@ export function CustomCakeForm() {
         return;
       }
 
-      // Redirect to confirmation page
+      // Redirect to confirmation page using secure capability public token
       router.push(`/custom-cake/confirmation/${res.token}`);
     } catch (err) {
       console.error("[CustomCakeForm] Submission failed:", err);
@@ -503,14 +524,37 @@ export function CustomCakeForm() {
             </span>
           </div>
           <textarea
+            ref={descriptionRef}
             id="description"
             required
             rows={4}
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => {
+              setDescription(e.target.value);
+              if (descriptionError && e.target.value.trim().length >= 10) {
+                setDescriptionError(null);
+                setErrorMessage((prev) => (prev?.includes("describe") ? null : prev));
+              }
+            }}
+            aria-invalid={!!descriptionError}
+            aria-describedby={descriptionError ? "description-error" : undefined}
             placeholder="Describe your cake idea in detail: theme characters, colour tones (e.g. pastel lavender & gold), frosting style, floral decorations, or specific tier layouts..."
-            className="w-full rounded-sm border border-border bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+            className={`w-full rounded-sm border bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none transition-colors ${
+              descriptionError
+                ? "border-destructive ring-1 ring-destructive focus-visible:ring-2 focus-visible:ring-destructive"
+                : "border-border focus-visible:ring-2 focus-visible:ring-caramel"
+            }`}
           />
+          {descriptionError && (
+            <div
+              id="description-error"
+              role="alert"
+              className="flex items-center gap-1.5 pt-1 text-xs font-medium text-destructive animate-in fade-in slide-in-from-top-1"
+            >
+              <AlertCircle className="size-3.5 shrink-0" />
+              <span>{descriptionError}</span>
+            </div>
+          )}
         </div>
 
         {/* Message on Cake */}
@@ -668,14 +712,37 @@ export function CustomCakeForm() {
             <div className="relative">
               <User className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <input
+                ref={nameRef}
                 id="customerName"
                 type="text"
                 required
                 placeholder="e.g. Ramesh Kumar"
                 value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                className="w-full min-h-[48px] rounded-sm border border-border bg-background pl-10 pr-3.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                onChange={(e) => {
+                  setCustomerName(e.target.value);
+                  if (nameError && e.target.value.trim().length >= 2) {
+                    setNameError(null);
+                    setErrorMessage((prev) => (prev?.includes("name") ? null : prev));
+                  }
+                }}
+                aria-invalid={!!nameError}
+                aria-describedby={nameError ? "customerName-error" : undefined}
+                className={`w-full min-h-[48px] rounded-sm border bg-background pl-10 pr-3.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none transition-colors ${
+                  nameError
+                    ? "border-destructive ring-1 ring-destructive focus-visible:ring-2 focus-visible:ring-destructive"
+                    : "border-border focus-visible:ring-2 focus-visible:ring-caramel"
+                }`}
               />
+              {nameError && (
+                <div
+                  id="customerName-error"
+                  role="alert"
+                  className="flex items-center gap-1.5 pt-1 text-xs font-medium text-destructive animate-in fade-in slide-in-from-top-1"
+                >
+                  <AlertCircle className="size-3.5 shrink-0" />
+                  <span>{nameError}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -691,16 +758,40 @@ export function CustomCakeForm() {
                 +91
               </span>
               <input
+                ref={phoneRef}
                 id="customerPhone"
                 type="tel"
                 required
                 inputMode="numeric"
                 placeholder="98450 12345"
                 value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
-                className="w-full min-h-[48px] rounded-sm border border-border bg-background pl-12 pr-3.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                onChange={(e) => {
+                  setCustomerPhone(e.target.value);
+                  const clean = e.target.value.replace(/[\s\-]/g, "");
+                  if (phoneError && /^(\+91|91|0)?[6-9]\d{9}$/.test(clean)) {
+                    setPhoneError(null);
+                    setErrorMessage((prev) => (prev?.includes("mobile") ? null : prev));
+                  }
+                }}
+                aria-invalid={!!phoneError}
+                aria-describedby={phoneError ? "customerPhone-error" : undefined}
+                className={`w-full min-h-[48px] rounded-sm border bg-background pl-12 pr-3.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none transition-colors ${
+                  phoneError
+                    ? "border-destructive ring-1 ring-destructive focus-visible:ring-2 focus-visible:ring-destructive"
+                    : "border-border focus-visible:ring-2 focus-visible:ring-caramel"
+                }`}
               />
             </div>
+            {phoneError && (
+              <div
+                id="customerPhone-error"
+                role="alert"
+                className="flex items-center gap-1.5 pt-1 text-xs font-medium text-destructive animate-in fade-in slide-in-from-top-1"
+              >
+                <AlertCircle className="size-3.5 shrink-0" />
+                <span>{phoneError}</span>
+              </div>
+            )}
             <p className="text-[11px] text-muted-foreground">
               Our head baker will call this number to confirm the order.
             </p>
