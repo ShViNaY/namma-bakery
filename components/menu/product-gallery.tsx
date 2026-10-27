@@ -44,7 +44,7 @@ export function ProductGallery({
   if (galleryImages.length === 0) {
     return (
       <div className="flex flex-col gap-3">
-        <div className="relative flex aspect-4/3 w-full flex-col items-center justify-center rounded-sm border border-border bg-secondary/50 p-8 text-caramel/70">
+        <div className="relative flex aspect-16/9 sm:aspect-4/3 w-full flex-col items-center justify-center rounded-sm border border-border bg-secondary/50 p-6 sm:p-8 text-caramel/70">
           {renderPlaceholderIcon(kind, categorySlug)}
           <span className="mt-4 font-heading text-xs tracking-wider text-muted-foreground uppercase">
             Namma Bakery • RR Nagar
@@ -58,8 +58,8 @@ export function ProductGallery({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Primary Display */}
-      <div className="relative aspect-4/3 w-full overflow-hidden rounded-sm border border-border bg-secondary/30">
+      {/* Primary Display: Shorter 16:9 on mobile phones, 4:3 on desktop */}
+      <div className="relative aspect-16/9 sm:aspect-4/3 w-full overflow-hidden rounded-sm border border-border bg-secondary/30">
         <Image
           src={currentImage.url}
           alt={currentImage.alt}
@@ -81,7 +81,7 @@ export function ProductGallery({
                 key={img.id}
                 type="button"
                 onClick={() => setSelectedIndex(idx)}
-                className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-sm border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel ${
+                className={`relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-sm border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel ${
                   isSelected
                     ? "border-caramel ring-1 ring-caramel"
                     : "border-border opacity-70 hover:opacity-100"

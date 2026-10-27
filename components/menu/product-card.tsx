@@ -38,7 +38,7 @@ export function ProductCard({ product }: ProductCardProps) {
       className="group flex flex-col overflow-hidden rounded-sm border border-border bg-card transition-all duration-300 hover:border-caramel/60 hover:shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
     >
       {/* Visual Header / Image Placeholder */}
-      <div className="relative flex aspect-4/3 w-full items-center justify-center overflow-hidden border-b border-border bg-secondary/50 text-caramel/70 transition-colors duration-300 group-hover:bg-secondary/70">
+      <div className="relative flex aspect-16/9 sm:aspect-4/3 w-full items-center justify-center overflow-hidden border-b border-border bg-secondary/50 text-caramel/70 transition-colors duration-300 group-hover:bg-secondary/70">
         {imageUrl ? (
           <Image
             src={imageUrl}

@@ -12,7 +12,7 @@ export function CategoryNav({ categories, activeSlug }: CategoryNavProps) {
   return (
     <nav
       aria-label="Menu categories"
-      className="scrollbar-none -mx-4 flex items-center gap-2 overflow-x-auto px-4 py-2 sm:mx-0 sm:flex-wrap sm:px-0"
+      className="scrollbar-none flex w-full items-center gap-2 overflow-x-auto py-2 sm:flex-wrap"
     >
       <Link
         href="/menu"

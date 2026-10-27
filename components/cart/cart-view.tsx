@@ -111,11 +111,16 @@ export function CartView() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
         {/* Cart Items List & Pickup Selection */}
         <div className="lg:col-span-8 space-y-8">
-          <div>
-            <h2 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-3">
-              Items in your order
-            </h2>
-            <ul className="divide-y divide-border rounded-sm border border-border bg-card">
+          <div className="rounded-sm border border-border bg-card overflow-hidden">
+            <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6 sm:py-5">
+              <h2 className="font-heading text-lg font-semibold text-foreground">
+                Items in your order
+              </h2>
+              <span className="text-xs font-medium text-muted-foreground">
+                {itemCount} {itemCount === 1 ? "item" : "items"}
+              </span>
+            </div>
+            <ul className="divide-y divide-border">
               {items.map((item) => {
                 const lineTotalPaise = item.unitPricePaise * item.quantity;
                 const productUrl = `/menu/${item.categorySlug}/${item.productSlug}`;
@@ -174,7 +179,7 @@ export function CartView() {
                     </div>
 
                     {/* Quantity and Line Total */}
-                    <div className="flex items-center justify-between border-t border-border/50 pt-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/50 pt-3">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-medium text-muted-foreground mr-1">
                           Qty:
@@ -240,9 +245,11 @@ export function CartView() {
         {/* Order Summary */}
         <div className="lg:col-span-4">
           <div className="sticky top-24 rounded-sm border border-border bg-card p-5 sm:p-6">
-            <h2 className="font-heading text-lg font-semibold text-foreground">
-              Order Summary
-            </h2>
+            <div className="border-b border-border pb-4">
+              <h2 className="font-heading text-lg font-semibold text-foreground">
+                Order Summary
+              </h2>
+            </div>
 
             <dl className="mt-4 space-y-3 text-sm">
               <div className="flex justify-between text-muted-foreground">

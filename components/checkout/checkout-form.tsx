@@ -20,6 +20,7 @@ import { CustomerDetailsForm } from "./customer-details-form";
 import { CheckoutPickupSummary } from "./checkout-pickup-summary";
 import { PaymentMethodNote } from "./payment-method-note";
 import { CheckoutOrderSummary } from "./checkout-order-summary";
+import { formatPaise } from "@/lib/utils/money";
 
 export function CheckoutForm() {
   const router = useRouter();
@@ -222,12 +223,12 @@ export function CheckoutForm() {
         <div
           role="alert"
           aria-live="assertive"
-          className="mb-8 flex items-start gap-3 rounded-sm border border-destructive/40 bg-destructive/10 p-4 text-xs text-destructive dark:bg-destructive/20 sm:text-sm animate-in fade-in"
+          className="mb-6 flex items-start gap-2.5 rounded-sm border border-destructive/40 bg-destructive/10 p-3 sm:p-4 text-xs text-destructive dark:bg-destructive/20 sm:text-sm animate-in fade-in"
         >
-          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" aria-hidden="true" />
-          <div className="space-y-1">
-            <p className="font-semibold">Unable to place order</p>
-            <p className="leading-relaxed text-destructive/90">{submitError}</p>
+          <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 mt-0.5" aria-hidden="true" />
+          <div className="space-y-0.5 min-w-0 flex-1">
+            <p className="font-semibold text-xs sm:text-sm">Unable to place order</p>
+            <p className="leading-relaxed text-[11px] sm:text-xs text-destructive/90 break-words">{submitError}</p>
           </div>
         </div>
       )}
@@ -278,7 +279,22 @@ export function CheckoutForm() {
             <PaymentMethodNote />
 
             {/* Action Buttons */}
-            <div className="rounded-sm border border-border bg-card p-5 sm:p-6 space-y-4">
+            <div className="rounded-sm border border-border bg-card p-4 sm:p-6 space-y-4">
+              {/* Mobile total preview (visible only on small screens < lg) */}
+              <div className="lg:hidden flex items-center justify-between border-b border-border pb-3">
+                <div>
+                  <span className="text-xs text-muted-foreground block">
+                    Order Total ({itemCount} {itemCount === 1 ? "item" : "items"})
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">
+                    Pay at store counter
+                  </span>
+                </div>
+                <span className="font-heading text-lg font-bold text-foreground">
+                  {formatPaise(subtotalPaise)}
+                </span>
+              </div>
+
               <button
                 type="submit"
                 disabled={!isPickupValid || isSubmitting}
