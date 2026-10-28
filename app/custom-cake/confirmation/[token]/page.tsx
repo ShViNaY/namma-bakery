@@ -27,13 +27,17 @@ export default async function CustomCakeConfirmationPage({
   const result = await getCustomCakePublicViewAction(token);
 
   if (!result.success || !result.data) {
+    const isNotFound =
+      result.error === "Custom cake request not found." ||
+      result.error === "Invalid tracking token format.";
+
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center space-y-4">
         <div className="size-12 rounded-full bg-destructive/10 text-destructive flex items-center justify-center mx-auto">
           <AlertCircle className="size-6" />
         </div>
         <h1 className="font-heading text-xl font-bold text-foreground">
-          Enquiry Not Found
+          {isNotFound ? "Enquiry Not Found" : "Unable to Load Enquiry"}
         </h1>
         <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
           {result.error ||

@@ -319,7 +319,18 @@ export async function getCustomCakePublicViewAction(
       .eq("public_token", token.trim())
       .maybeSingle();
 
-    if (reqError || !requestRow) {
+    if (reqError) {
+      console.error("[getCustomCakePublicViewAction] Database error querying request:", {
+        message: reqError.message,
+        code: reqError.code,
+      });
+      return {
+        success: false,
+        error: "Unable to load custom cake enquiry details right now. Please try again later.",
+      };
+    }
+
+    if (!requestRow) {
       return { success: false, error: "Custom cake request not found." };
     }
 

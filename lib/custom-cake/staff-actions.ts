@@ -26,7 +26,8 @@ export async function updateCustomCakeStatusAction(params: {
     if (
       toStatus === "UNDER_REVIEW" ||
       toStatus === "NEEDS_CLARIFICATION" ||
-      toStatus === "DECLINED"
+      toStatus === "DECLINED" ||
+      toStatus === "CUSTOMER_ACCEPTED"
     ) {
       const supabase = await createClient();
       const { error } = await supabase.rpc("staff_review_request", {
@@ -61,7 +62,7 @@ export async function updateCustomCakeStatusAction(params: {
 
       if (updateError) {
         console.error("[updateCustomCakeStatusAction] Update error:", updateError.message);
-        return { success: false, error: "Failed to update custom cake status." };
+        return { success: false, error: "Failed to update custom cake status. Please try again." };
       }
 
       // Record message if provided

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, Loader2, AlertCircle } from "lucide-react";
 import { lookupOrderTokenAction } from "@/lib/orders/actions";
@@ -17,6 +18,14 @@ export function OrderLookupForm() {
 
     if (!orderNumber.trim() || !phone.trim()) {
       setErrorMessage("Please enter both your order number and phone number.");
+      return;
+    }
+
+    const trimmedOrder = orderNumber.trim().toUpperCase();
+    if (trimmedOrder.startsWith("CC")) {
+      setErrorMessage(
+        "Custom cake enquiries (e.g. CC1016) are reviewed directly by our head baker and tracked in the Custom Cake Tracker. Please use the Track Custom Cakes option below."
+      );
       return;
     }
 
@@ -65,7 +74,19 @@ export function OrderLookupForm() {
           className="flex items-start gap-2.5 rounded-sm border border-destructive/40 bg-destructive/10 p-3.5 text-xs text-destructive dark:bg-destructive/20"
         >
           <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-          <span>{errorMessage}</span>
+          <div className="space-y-1">
+            <span>{errorMessage}</span>
+            {orderNumber.trim().toUpperCase().startsWith("CC") && (
+              <div>
+                <Link
+                  href="/custom-cake/track"
+                  className="font-semibold text-caramel hover:underline block pt-0.5"
+                >
+                  Go to Custom Cake Tracker &rarr;
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Sparkles,
@@ -15,6 +16,9 @@ import {
   Mail,
   Info,
   Check,
+  Eye,
+  RotateCcw,
+  Copy,
 } from "lucide-react";
 import { submitCustomCakeRequestAction } from "@/lib/custom-cake/actions";
 import { getIstDateString } from "@/lib/utils/date";
@@ -109,8 +113,79 @@ export function CustomCakeForm() {
   // UI state
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const [descriptionError, setDescriptionError] = React.useState<string | null>(null);
+  const [nameError, setNameError] = React.useState<string | null>(null);
+  const [phoneError, setPhoneError] = React.useState<string | null>(null);
 
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const descriptionRef = React.useRef<HTMLTextAreaElement | null>(null);
+  const nameRef = React.useRef<HTMLInputElement | null>(null);
+  const phoneRef = React.useRef<HTMLInputElement | null>(null);
+
+  // Post-submission state
+  const [submittedEnquiry, setSubmittedEnquiry] = React.useState<{
+    requestNumber: string;
+    token: string;
+  } | null>(null);
+  const [copiedReference, setCopiedReference] = React.useState(false);
+
+  const handleCopySubmittedReference = React.useCallback(() => {
+    if (!submittedEnquiry?.requestNumber || typeof navigator === "undefined" || !navigator.clipboard) return;
+    navigator.clipboard
+      .writeText(submittedEnquiry.requestNumber)
+      .then(() => {
+        setCopiedReference(true);
+        setTimeout(() => setCopiedReference(false), 2000);
+      })
+      .catch(() => {
+        // Ignore clipboard failure
+      });
+  }, [submittedEnquiry]);
+
+  // Clean up preview object URL on unmount or file change
+  React.useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  const handleReset = React.useCallback(() => {
+    setSubmittedEnquiry(null);
+    setIsSubmitting(false);
+    setCopiedReference(false);
+    setErrorMessage(null);
+    setDescriptionError(null);
+    setNameError(null);
+    setPhoneError(null);
+
+    setCustomerName("");
+    setCustomerPhone("");
+    setCustomerEmail("");
+    setCakeType(CAKE_OCCASIONS[0]);
+    setCustomOccasion("");
+    setFlavour(FLAVOUR_OPTIONS[0]);
+    setCustomFlavour("");
+    setEggType("EGGLESS");
+    setWeightGrams(1000);
+    setIsCustomWeight(false);
+    setCustomWeightInput("");
+    setShape(SHAPE_OPTIONS[0]);
+    setPreferredPickupDate(tomorrowIst);
+    setPreferredPickupTime(PICKUP_WINDOWS[2]);
+    setDescription("");
+    setMessageOnCake("");
+    setAdditionalNotes("");
+    setReferenceFile(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }, [tomorrowIst, previewUrl]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -143,21 +218,36 @@ export function CustomCakeForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
+    setDescriptionError(null);
+    setNameError(null);
+    setPhoneError(null);
 
     // Basic client checks
     if (!customerName.trim() || customerName.trim().length < 2) {
-      setErrorMessage("Please enter your name (at least 2 characters).");
+      const msg = "Please enter your name (at least 2 characters).";
+      setNameError(msg);
+      setErrorMessage(msg);
+      nameRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      nameRef.current?.focus();
       return;
     }
 
     const cleanPhone = customerPhone.replace(/[\s\-]/g, "");
     if (!/^(\+91|91|0)?[6-9]\d{9}$/.test(cleanPhone)) {
-      setErrorMessage("Please enter a valid 10-digit Indian mobile number.");
+      const msg = "Please enter a valid 10-digit Indian mobile number.";
+      setPhoneError(msg);
+      setErrorMessage(msg);
+      phoneRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      phoneRef.current?.focus();
       return;
     }
 
     if (!description.trim() || description.trim().length < 10) {
-      setErrorMessage("Please describe your design or theme idea (at least 10 characters).");
+      const msg = "Please describe your design or theme idea (at least 10 characters).";
+      setDescriptionError(msg);
+      setErrorMessage(msg);
+      descriptionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      descriptionRef.current?.focus();
       return;
     }
 
@@ -211,7 +301,13 @@ export function CustomCakeForm() {
         return;
       }
 
-      // Redirect to confirmation page
+      setIsSubmitting(false);
+      setSubmittedEnquiry({
+        requestNumber: res.requestNumber || "",
+        token: res.token,
+      });
+
+      // Redirect to confirmation page using secure capability public token
       router.push(`/custom-cake/confirmation/${res.token}`);
     } catch (err) {
       console.error("[CustomCakeForm] Submission failed:", err);
@@ -219,6 +315,83 @@ export function CustomCakeForm() {
       setIsSubmitting(false);
     }
   };
+
+  if (submittedEnquiry) {
+    return (
+      <div className="rounded-sm border border-border bg-card p-6 sm:p-10 text-center space-y-6 shadow-xs animate-in fade-in">
+        <div className="size-14 rounded-full bg-emerald-500/10 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 flex items-center justify-center mx-auto">
+          <CheckCircle2 className="size-8" />
+        </div>
+
+        <div className="space-y-1.5">
+          <span className="font-kannada text-xs font-semibold text-caramel block">
+            ವಿಚಾರಣೆ ಸ್ವೀಕರಿಸಲಾಗಿದೆ · Enquiry Submitted
+          </span>
+          <h2 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+            Custom Cake Enquiry Submitted
+          </h2>
+          <p className="text-xs sm:text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
+            Thank you! Your custom celebration cake enquiry has been received. Our head baker will review your design specifications and contact you directly via phone.
+          </p>
+        </div>
+
+        {/* Enquiry Reference Box */}
+        <div className="rounded-sm border border-border bg-background p-4 max-w-sm mx-auto space-y-1.5">
+          <span className="text-xs text-muted-foreground font-medium block">
+            Your enquiry reference:
+          </span>
+          <div className="flex items-center justify-center gap-2">
+            <span className="font-mono text-xl font-bold text-foreground tracking-wide">
+              {submittedEnquiry.requestNumber}
+            </span>
+            <button
+              type="button"
+              onClick={handleCopySubmittedReference}
+              className="min-touch-target inline-flex items-center justify-center rounded p-1.5 text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+              title="Copy reference number"
+              aria-label="Copy reference number"
+            >
+              {copiedReference ? (
+                <Check className="size-4 text-emerald-600" />
+              ) : (
+                <Copy className="size-4" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Informational Guidance Notice */}
+        <div className="rounded-sm border border-amber-300 bg-amber-50/80 p-3.5 text-left text-amber-950 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-200 max-w-md mx-auto text-xs space-y-1">
+          <div className="flex items-start gap-2">
+            <Info className="size-4 text-amber-800 dark:text-amber-400 shrink-0 mt-0.5" />
+            <p className="leading-relaxed">
+              Custom cake enquiries are not tracked in the standard bakery order tracker. Please use the button below or bookmark your enquiry link to view your enquiry details at any time.
+            </p>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <Link
+            href={`/custom-cake/confirmation/${submittedEnquiry.token}`}
+            className="w-full sm:w-auto min-h-[48px] h-12 px-6 rounded-sm bg-caramel text-white text-xs font-semibold flex items-center justify-center gap-2 hover:bg-caramel/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel shadow-xs"
+          >
+            <Eye className="size-4" />
+            <span>View Enquiry</span>
+          </Link>
+
+          <button
+            type="button"
+            onClick={handleReset}
+            className="w-full sm:w-auto min-h-[48px] h-12 px-6 rounded-sm border border-border bg-card text-foreground text-xs font-semibold flex items-center justify-center gap-2 hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+          >
+            <RotateCcw className="size-4 text-muted-foreground" />
+            <span>Submit Another Custom Cake</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8" noValidate>
@@ -503,14 +676,37 @@ export function CustomCakeForm() {
             </span>
           </div>
           <textarea
+            ref={descriptionRef}
             id="description"
             required
             rows={4}
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => {
+              setDescription(e.target.value);
+              if (descriptionError && e.target.value.trim().length >= 10) {
+                setDescriptionError(null);
+                setErrorMessage((prev) => (prev?.includes("describe") ? null : prev));
+              }
+            }}
+            aria-invalid={!!descriptionError}
+            aria-describedby={descriptionError ? "description-error" : undefined}
             placeholder="Describe your cake idea in detail: theme characters, colour tones (e.g. pastel lavender & gold), frosting style, floral decorations, or specific tier layouts..."
-            className="w-full rounded-sm border border-border bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+            className={`w-full rounded-sm border bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none transition-colors ${
+              descriptionError
+                ? "border-destructive ring-1 ring-destructive focus-visible:ring-2 focus-visible:ring-destructive"
+                : "border-border focus-visible:ring-2 focus-visible:ring-caramel"
+            }`}
           />
+          {descriptionError && (
+            <div
+              id="description-error"
+              role="alert"
+              className="flex items-center gap-1.5 pt-1 text-xs font-medium text-destructive animate-in fade-in slide-in-from-top-1"
+            >
+              <AlertCircle className="size-3.5 shrink-0" />
+              <span>{descriptionError}</span>
+            </div>
+          )}
         </div>
 
         {/* Message on Cake */}
@@ -668,14 +864,37 @@ export function CustomCakeForm() {
             <div className="relative">
               <User className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <input
+                ref={nameRef}
                 id="customerName"
                 type="text"
                 required
                 placeholder="e.g. Ramesh Kumar"
                 value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                className="w-full min-h-[48px] rounded-sm border border-border bg-background pl-10 pr-3.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                onChange={(e) => {
+                  setCustomerName(e.target.value);
+                  if (nameError && e.target.value.trim().length >= 2) {
+                    setNameError(null);
+                    setErrorMessage((prev) => (prev?.includes("name") ? null : prev));
+                  }
+                }}
+                aria-invalid={!!nameError}
+                aria-describedby={nameError ? "customerName-error" : undefined}
+                className={`w-full min-h-[48px] rounded-sm border bg-background pl-10 pr-3.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none transition-colors ${
+                  nameError
+                    ? "border-destructive ring-1 ring-destructive focus-visible:ring-2 focus-visible:ring-destructive"
+                    : "border-border focus-visible:ring-2 focus-visible:ring-caramel"
+                }`}
               />
+              {nameError && (
+                <div
+                  id="customerName-error"
+                  role="alert"
+                  className="flex items-center gap-1.5 pt-1 text-xs font-medium text-destructive animate-in fade-in slide-in-from-top-1"
+                >
+                  <AlertCircle className="size-3.5 shrink-0" />
+                  <span>{nameError}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -691,16 +910,40 @@ export function CustomCakeForm() {
                 +91
               </span>
               <input
+                ref={phoneRef}
                 id="customerPhone"
                 type="tel"
                 required
                 inputMode="numeric"
                 placeholder="98450 12345"
                 value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
-                className="w-full min-h-[48px] rounded-sm border border-border bg-background pl-12 pr-3.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+                onChange={(e) => {
+                  setCustomerPhone(e.target.value);
+                  const clean = e.target.value.replace(/[\s\-]/g, "");
+                  if (phoneError && /^(\+91|91|0)?[6-9]\d{9}$/.test(clean)) {
+                    setPhoneError(null);
+                    setErrorMessage((prev) => (prev?.includes("mobile") ? null : prev));
+                  }
+                }}
+                aria-invalid={!!phoneError}
+                aria-describedby={phoneError ? "customerPhone-error" : undefined}
+                className={`w-full min-h-[48px] rounded-sm border bg-background pl-12 pr-3.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none transition-colors ${
+                  phoneError
+                    ? "border-destructive ring-1 ring-destructive focus-visible:ring-2 focus-visible:ring-destructive"
+                    : "border-border focus-visible:ring-2 focus-visible:ring-caramel"
+                }`}
               />
             </div>
+            {phoneError && (
+              <div
+                id="customerPhone-error"
+                role="alert"
+                className="flex items-center gap-1.5 pt-1 text-xs font-medium text-destructive animate-in fade-in slide-in-from-top-1"
+              >
+                <AlertCircle className="size-3.5 shrink-0" />
+                <span>{phoneError}</span>
+              </div>
+            )}
             <p className="text-[11px] text-muted-foreground">
               Our head baker will call this number to confirm the order.
             </p>

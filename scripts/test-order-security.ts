@@ -15,9 +15,15 @@ import path from "node:path";
 import { placeOrderInputSchema, lookupOrderTokenSchema } from "../lib/orders/validation";
 import {
   customCakeFormSchema,
+  customCakeTrackingInputSchema,
   validateReferenceImageFile,
   validateImageMagicBytes,
 } from "../lib/custom-cake/validation";
+import {
+  createTrackingSessionToken,
+  verifyTrackingSessionToken,
+  maskPhoneNumber,
+} from "../lib/custom-cake/tracking-session";
 import { checkRateLimit } from "../lib/security/rate-limiter";
 import { DEFAULT_LOCATION_SLUG } from "../lib/pickup/queries";
 import {
@@ -719,6 +725,97 @@ assert(
     cakeActionContent.includes('.eq("is_active", true)'),
   "submitCustomCakeRequestAction requires both DEFAULT_LOCATION_SLUG and is_active=true"
 );
+
+// --- 11. Custom Cake Tracking Dashboard Security Boundaries ---
+console.log("\n--- 11. Custom Cake Tracking Dashboard Security Boundaries ---");
+
+assert(
+  customCakeTrackingInputSchema.safeParse({
+    enquiryNumber: "CC1022",
+    phone: "9845012345",
+  }).success,
+  "Custom Cake Track: Accept valid enquiry reference CC1022 with 10-digit phone"
+);
+
+assert(
+  customCakeTrackingInputSchema.safeParse({
+    enquiryNumber: "cc1022",
+    phone: "+91 98450 12345",
+  }).success,
+  "Custom Cake Track: Normalize lowercase enquiry number and formatted Indian mobile"
+);
+
+assert(
+  !customCakeTrackingInputSchema.safeParse({
+    enquiryNumber: "NB1001",
+    phone: "9845012345",
+  }).success,
+  "Custom Cake Track: Reject standard order number (NBxxxx) in custom cake tracker"
+);
+
+assert(
+  !customCakeTrackingInputSchema.safeParse({
+    enquiryNumber: "1022",
+    phone: "9845012345",
+  }).success,
+  "Custom Cake Track: Reject enquiry number missing CC prefix"
+);
+
+assert(
+  !customCakeTrackingInputSchema.safeParse({
+    enquiryNumber: "CC1022",
+    phone: "12345",
+  }).success,
+  "Custom Cake Track: Reject invalid/short phone number"
+);
+
+assert(
+  !customCakeTrackingInputSchema.safeParse({
+    enquiryNumber: "CC1022",
+    phone: "9845012345",
+    injected: "attacker-field",
+  }).success,
+  "Custom Cake Track: Strictly reject arbitrary injected payload fields (.strict())"
+);
+
+// HMAC Token creation & verification
+const testPhone = "9876543210";
+const testEnquiry = "CC1022";
+const validToken = createTrackingSessionToken({
+  phone: testPhone,
+  verifiedRequestNumber: testEnquiry,
+});
+
+const verified = verifyTrackingSessionToken(validToken);
+assert(
+  verified !== null && verified.phone === testPhone && verified.verifiedRequestNumber === testEnquiry,
+  "Tracking Session: Successfully verify valid HMAC-signed tracking session token"
+);
+
+// Tampered token
+const tamperedToken = validToken.slice(0, -4) + "XXXX";
+assert(
+  verifyTrackingSessionToken(tamperedToken) === null,
+  "Tracking Session: Reject tampered signature in session token"
+);
+
+// Forged payload
+const forgedParts = validToken.split(".");
+const fakePayload = Buffer.from(
+  JSON.stringify({ phone: "9999999999", verifiedRequestNumber: "CC9999", expiresAt: Date.now() + 10000 })
+).toString("base64url");
+const forgedToken = `${fakePayload}.${forgedParts[1]}`;
+assert(
+  verifyTrackingSessionToken(forgedToken) === null,
+  "Tracking Session: Reject token with forged payload"
+);
+
+// Phone masking
+assert(
+  maskPhoneNumber("9876543215") === "+91 ••••• •3215",
+  "Tracking Session: Mask phone number safely for customer view"
+);
+
 
 
 

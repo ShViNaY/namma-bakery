@@ -136,3 +136,24 @@ export function validateImageMagicBytes(bytes: Uint8Array | Buffer): boolean {
   return false;
 }
 
+/**
+ * Strict schema for verifying customer access to the Custom Cake Tracking Dashboard.
+ * Requires both enquiry number (e.g. CC1022) and normalized Indian mobile number.
+ */
+export const customCakeTrackingInputSchema = z
+  .object({
+    enquiryNumber: z
+      .string()
+      .trim()
+      .min(1, "Enquiry number is required")
+      .transform((val) => val.toUpperCase())
+      .refine(
+        (val) => /^CC\d{4,8}$/.test(val),
+        "Please enter a valid Custom Cake enquiry number (e.g. CC1022)"
+      ),
+    phone: indianPhoneSchema,
+  })
+  .strict();
+
+export type CustomCakeTrackingInput = z.infer<typeof customCakeTrackingInputSchema>;
+

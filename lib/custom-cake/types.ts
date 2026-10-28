@@ -106,3 +106,35 @@ export interface CustomCakeOperationalSummary {
   confirmed: number;
   declinedOrCancelled: number;
 }
+
+export interface CustomCakeTrackingItem {
+  id: string;
+  request_number: string;
+  public_token: string;
+  customer_name: string;
+  status: CustomCakeStatus;
+  flavour: string;
+  egg_type: CustomCakeEggType;
+  weight_grams: number;
+  shape?: string | null;
+  cake_type?: string | null;
+  message_on_cake?: string | null;
+  description?: string | null;
+  preferred_pickup_at: string;
+  additional_notes?: string | null;
+  decline_reason?: string | null;
+  created_at: string;
+  updated_at: string;
+  reference_image_url?: string | null;
+  quote?: {
+    price_paise: number;
+    confirmed_pickup_at: string;
+    bakery_note?: string | null;
+    valid_until?: string;
+  } | null;
+  messages?: Array<{
+    sender: "CUSTOMER" | "STAFF";
+    body: string;
+    created_at: string;
+  }>;
+}

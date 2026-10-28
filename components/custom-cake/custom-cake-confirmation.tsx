@@ -13,6 +13,7 @@ import {
   ShoppingBag,
   ArrowRight,
   Info,
+  Search,
 } from "lucide-react";
 import type { CustomCakePublicView } from "@/lib/custom-cake/types";
 import { formatIstDate, formatIstTime } from "@/lib/utils/date";
@@ -114,6 +115,21 @@ export function CustomCakeConfirmation({ request }: CustomCakeConfirmationProps)
           >
             {badge.label}
           </span>
+        </div>
+
+        <div className="pt-1 space-y-1.5 max-w-md mx-auto">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Please bookmark this confirmation page URL to check your enquiry details. Custom cake enquiries are reviewed directly by our head baker and are not tracked via the standard bakery order tracker.
+          </p>
+          <p className="text-xs text-foreground font-medium">
+            Have multiple custom cake enquiries?{" "}
+            <Link
+              href="/custom-cake/track"
+              className="text-caramel hover:underline font-semibold focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"
+            >
+              Track all your enquiries here &rarr;
+            </Link>
+          </p>
         </div>
       </div>
 
@@ -249,8 +265,22 @@ export function CustomCakeConfirmation({ request }: CustomCakeConfirmationProps)
       {/* Navigation Buttons */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
         <Link
+          href="/custom-cake/track"
+          className="w-full sm:w-auto min-h-[48px] h-12 px-6 rounded-sm bg-caramel text-white text-xs font-semibold flex items-center justify-center gap-2 hover:bg-caramel/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel shadow-xs"
+        >
+          <Search className="size-4" />
+          <span>Track My Custom Cakes</span>
+        </Link>
+        <Link
+          href="/custom-cake"
+          className="w-full sm:w-auto min-h-[48px] h-12 px-6 rounded-sm border border-border bg-card text-foreground text-xs font-semibold flex items-center justify-center gap-2 hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+        >
+          <Sparkles className="size-4" />
+          <span>Submit Another Enquiry</span>
+        </Link>
+        <Link
           href="/menu"
-          className="w-full sm:w-auto min-h-[48px] h-12 px-6 rounded-sm bg-caramel text-white text-xs font-semibold flex items-center justify-center gap-2 hover:bg-caramel/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+          className="w-full sm:w-auto min-h-[48px] h-12 px-6 rounded-sm border border-border bg-card text-foreground text-xs font-semibold flex items-center justify-center gap-2 hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
         >
           <ShoppingBag className="size-4" />
           <span>Browse Regular Menu</span>

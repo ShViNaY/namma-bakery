@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sparkles, ArrowRight } from "lucide-react";
 import { OrderLookupForm } from "@/components/orders/order-lookup-form";
 
 export const metadata: Metadata = {
@@ -15,8 +15,8 @@ export const metadata: Metadata = {
 
 export default function OrdersIndexPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-xl px-4 py-12 sm:px-6 sm:py-16 space-y-6">
+    <div className="bg-background">
+      <div className="mx-auto max-w-xl px-4 py-8 sm:py-10 space-y-6">
         <nav aria-label="Breadcrumb">
           <Link
             href="/"
@@ -39,7 +39,35 @@ export default function OrdersIndexPage() {
           </p>
         </div>
 
+        {/* Regular Bakery Order Tracking Card */}
         <OrderLookupForm />
+
+        {/* Dedicated Prominent Custom Cake Tracking Section */}
+        <div className="rounded-sm border border-border bg-card p-6 sm:p-7 space-y-4 shadow-xs">
+          <div className="flex items-start gap-3.5">
+            <div className="size-10 rounded-sm bg-caramel/15 text-caramel flex items-center justify-center shrink-0 mt-0.5">
+              <Sparkles className="size-5" />
+            </div>
+            <div className="space-y-1">
+              <h2 className="font-heading text-lg font-bold text-foreground">
+                Have a Custom Cake Enquiry?
+              </h2>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                Track your custom cake enquiries and see their latest status in one place.
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-1">
+            <Link
+              href="/custom-cake/track"
+              className="inline-flex min-h-[48px] h-12 w-full sm:w-auto px-6 items-center justify-center gap-2 rounded-sm bg-caramel text-sm font-semibold text-white shadow-xs transition-colors hover:bg-caramel/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+            >
+              <span>Track Custom Cakes</span>
+              <ArrowRight className="size-4" />
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
