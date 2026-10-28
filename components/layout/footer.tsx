@@ -1,7 +1,20 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Clock, MapPin } from "lucide-react";
+import { useRecommendationWidgetVisible } from "@/lib/recommendation-store";
 
 export function Footer() {
+  const isWidgetVisible = useRecommendationWidgetVisible();
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    // Enable transitions after initial mount so initial page render doesn't animate
+    const timer = setTimeout(() => setIsReady(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <footer className="mt-auto border-t border-border bg-card">
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -75,7 +88,11 @@ export function Footer() {
 
         <div className="mt-8 border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
           <p>&copy; 2026 Namma Bakery. Handcrafted in Bengaluru. All rights reserved.</p>
-          <div className="flex items-center gap-4">
+          <div
+            className={`flex items-center gap-4 ${
+              isReady ? "staff-portal-transition" : ""
+            } ${isWidgetVisible ? "staff-portal-offset-active" : ""}`}
+          >
             <Link
               href="/staff/login"
               className="inline-flex min-h-[48px] items-center hover:text-caramel transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-caramel"

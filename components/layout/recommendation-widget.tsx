@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useSyncExternalStore } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -14,7 +14,10 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-const STORAGE_KEY = "namma_bakery_recommendation_prompt_v1";
+import {
+  useRecommendationWidgetVisible,
+  dismissRecommendation,
+} from "@/lib/recommendation-store";
 
 interface CategoryOption {
   slug: string;
@@ -55,42 +58,13 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
   },
 ];
 
-const subscribe = (callback: () => void) => {
-  if (typeof window !== "undefined") {
-    window.addEventListener("storage", callback);
-    return () => window.removeEventListener("storage", callback);
-  }
-  return () => {};
-};
-
-function getDismissedSnapshot(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return localStorage.getItem(STORAGE_KEY) === "true";
-  } catch {
-    return false;
-  }
-}
-
-function getServerSnapshot(): boolean {
-  return false;
-}
-
 export function RecommendationWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [manualDismissed, setManualDismissed] = useState(false);
   const pathname = usePathname();
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  // Sync with localStorage safely across client/server without hydration mismatch
-  const storedDismissed = useSyncExternalStore(
-    subscribe,
-    getDismissedSnapshot,
-    getServerSnapshot
-  );
-
-  const isPromptDismissed = storedDismissed || manualDismissed;
+  const isVisible = useRecommendationWidgetVisible();
 
   // Close panel on route change using React's recommended state-during-render pattern
   const [prevPathname, setPrevPathname] = useState(pathname);
@@ -116,29 +90,14 @@ export function RecommendationWidget() {
     };
   }, [isOpen]);
 
-  // Do not render on admin, staff, checkout, or cart pages to avoid interfering with orders
-  if (
-    pathname.startsWith("/admin") ||
-    pathname.startsWith("/staff") ||
-    pathname.startsWith("/checkout") ||
-    pathname === "/cart"
-  ) {
-    return null;
-  }
-
-  // If dismissed, hide the entire widget
-  if (isPromptDismissed) {
+  // If dismissed or on ineligible page, hide the entire widget
+  if (!isVisible) {
     return null;
   }
 
   const handleDismissPrompt = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setManualDismissed(true);
-    try {
-      localStorage.setItem(STORAGE_KEY, "true");
-    } catch {
-      // localStorage may be disabled in restricted browsing mode
-    }
+    dismissRecommendation();
   };
 
   return (

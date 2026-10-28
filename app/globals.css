@@ -326,3 +326,29 @@
     transition: none !important;
   }
 }
+
+/* -------------------------------------------------------------
+   Staff Portal Offset System
+   - Shifts Staff Portal to the left when Floating Help Widget is visible
+   - Restores smoothly to original position when widget is dismissed
+   - Responsive across mobile (<768px) and desktop (>=768px)
+   ------------------------------------------------------------- */
+.staff-portal-offset-active {
+  transform: translateX(-112px);
+}
+
+@media (min-width: 768px) {
+  .staff-portal-offset-active {
+    transform: translateX(calc(-1 * clamp(0px, 280px - max(24px, (100vw - 72rem) / 2 + 24px), 256px)));
+  }
+}
+
+.staff-portal-transition {
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .staff-portal-transition {
+    transition: none !important;
+  }
+}
