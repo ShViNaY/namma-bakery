@@ -29,7 +29,7 @@ export default async function HomePage() {
   const jsonLd = getBakeryJsonLd();
 
   return (
-    <div className="flex flex-col">
+    <div id="top" className="flex flex-col scroll-mt-20">
       {/* Schema.org Structured Data */}
       <script
         type="application/ld+json"

@@ -49,6 +49,12 @@ const CATEGORY_SHORTCUTS = [
   { href: "/menu/soups", label: "Soups" },
 ];
 
+const MOBILE_PRIMARY_ACTIONS = [
+  { href: "/menu", label: "Menu" },
+  { href: "/custom-cake", label: "Custom Cakes" },
+  { href: "/orders", label: "Track Order" },
+];
+
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -56,6 +62,14 @@ export function Header() {
   const { itemCount, isHydrated } = useCart();
   const firstLinkRef = useRef<HTMLAnchorElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  const handleBrandClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    setIsOpen(false);
+    if (pathname === "/") {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   // Close menu on route change
   const [prevPathname, setPrevPathname] = useState(pathname);
@@ -130,7 +144,7 @@ export function Header() {
         {/* Brand identity */}
         <Link
           href="/"
-          onClick={() => setIsOpen(false)}
+          onClick={handleBrandClick}
           className="group flex flex-col justify-center shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
         >
           <span className="font-kannada text-[11px] sm:text-xs font-medium tracking-wide text-caramel leading-none mb-0.5">
@@ -209,6 +223,34 @@ export function Header() {
           </button>
         </div>
       </div>
+
+      {/* Mobile Primary Actions Row (< md screens) */}
+      <nav
+        aria-label="Mobile quick navigation"
+        className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xs px-2.5 py-2 sm:px-4"
+      >
+        <div className="mx-auto grid grid-cols-3 gap-2 max-w-md">
+          {MOBILE_PRIMARY_ACTIONS.map((item) => {
+            const isActive = pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex min-h-[48px] items-center justify-center rounded-sm border px-1.5 py-1 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel",
+                  isActive
+                    ? "border-caramel/60 bg-secondary/80 text-caramel font-semibold shadow-2xs"
+                    : "border-border/80 bg-background/80 text-foreground font-medium hover:border-caramel/40 hover:bg-secondary/40 hover:text-caramel active:bg-secondary/60"
+                )}
+              >
+                <span className="text-xs sm:text-sm leading-tight">
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
 
       {/* Mobile Navigation Drawer / Overlay */}
       {isOpen && (

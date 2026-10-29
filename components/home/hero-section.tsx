@@ -25,7 +25,7 @@ export function HeroSection() {
             {/* Narrative Paragraph */}
             <p className="animate-hero-text max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               From birthday celebration cakes to warm evening savouries, every recipe at
-              Namma Bakery is prepared fresh with care in Bengaluru. Pure veg eggless options available daily.
+              Namma Bakery is prepared fresh with care in Bengaluru. Pure veg, eggless options available daily.
             </p>
 
             {/* CTA Actions */}
