@@ -13,6 +13,7 @@ import {
 import type { StaffOrder, OrderFilter } from "@/lib/staff/types";
 import { formatPaise } from "@/lib/utils/money";
 import { formatIstDate, formatIstTime, getIstDateString } from "@/lib/utils/date";
+import { formatOrderItemVariant } from "@/lib/staff/formatters";
 
 interface StaffOrderListProps {
   orders: StaffOrder[];
@@ -246,12 +247,12 @@ export function StaffOrderList({
                   <span className="truncate pr-2">
                     {order.order_items?.length || 0} item(s):{" "}
                     {order.order_items
-                      ?.map(
-                        (i) =>
-                          `${i.quantity}x ${i.product_name}${
-                            i.variant_label ? ` (${i.variant_label})` : ""
-                          }`
-                      )
+                      ?.map((i) => {
+                        const variant = formatOrderItemVariant(i);
+                        return `${i.quantity}x ${i.product_name}${
+                          variant ? ` (${variant})` : ""
+                        }`;
+                      })
                       .join(", ")}
                   </span>
                   <span

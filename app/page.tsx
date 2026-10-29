@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { getMenuCategories, getMenuProducts } from "@/lib/menu/queries";
+import { getMenuProducts } from "@/lib/menu/queries";
 import { getBakeryJsonLd } from "@/lib/utils/seo";
 import { HeroSection } from "@/components/home/hero-section";
 import { PopularCakes } from "@/components/home/popular-cakes";
-import { CategoryShowcase } from "@/components/home/category-showcase";
 import { CustomCakeFeature } from "@/components/home/custom-cake-feature";
 import { StoreInfo } from "@/components/home/store-info";
 
@@ -19,12 +18,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [categoriesResult, productsResult] = await Promise.all([
-    getMenuCategories(),
-    getMenuProducts(),
-  ]);
-
-  const categories = categoriesResult.data ?? [];
+  const productsResult = await getMenuProducts();
   const products = productsResult.data ?? [];
   const jsonLd = getBakeryJsonLd();
 
@@ -42,13 +36,10 @@ export default async function HomePage() {
       {/* 2. Popular Cakes / Signature Products */}
       <PopularCakes products={products} />
 
-      {/* 3. Browse by Category */}
-      <CategoryShowcase categories={categories} />
-
-      {/* 4. Custom Cake Feature Band */}
+      {/* 3. Custom Cake Feature Band */}
       <CustomCakeFeature />
 
-      {/* 5. Visit Us / Store Information */}
+      {/* 4. Visit Us / Store Information */}
       <StoreInfo />
     </div>
   );

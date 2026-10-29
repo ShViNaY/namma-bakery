@@ -107,7 +107,7 @@ export function StaffCustomCakeDetail({
   };
 
   return (
-    <div className="flex flex-col h-full bg-card border-l border-border">
+    <div className="flex flex-col bg-card">
       {/* Header */}
       <div className="p-4 sm:p-5 border-b border-border flex items-start justify-between gap-3">
         <div>
@@ -139,8 +139,8 @@ export function StaffCustomCakeDetail({
         </button>
       </div>
 
-      {/* Main Scrollable Content */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-6">
+      {/* Main Content */}
+      <div className="p-4 sm:p-5 space-y-6">
         {/* Next Operations Bar */}
         <div className="rounded-sm border border-border bg-background p-3.5 space-y-2">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block">
@@ -445,7 +445,7 @@ export function StaffCustomCakeDetail({
           </span>
           <div className="rounded-sm border border-border bg-background p-3.5 space-y-3 text-xs">
             {request.request_messages && request.request_messages.length > 0 ? (
-              <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+              <div className="space-y-2">
                 {request.request_messages.map((msg) => (
                   <div
                     key={msg.id}

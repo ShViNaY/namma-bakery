@@ -18,6 +18,7 @@ import type { ModalType } from "./staff-status-modal";
 import { addInternalNoteAction } from "@/lib/staff/actions";
 import { formatPaise } from "@/lib/utils/money";
 import { formatIstDateTime } from "@/lib/utils/date";
+import { formatOrderItemVariant } from "@/lib/staff/formatters";
 
 interface StaffOrderDetailProps {
   order: StaffOrder;
@@ -35,6 +36,7 @@ export function StaffOrderDetail({
   const [internalNoteInput, setInternalNoteInput] = React.useState("");
   const [isAddingNote, setIsAddingNote] = React.useState(false);
   const [noteError, setNoteError] = React.useState<string | null>(null);
+  const [isExpanded, setIsExpanded] = React.useState(false);
 
   const isAdmin = role === "ADMIN";
 
@@ -86,7 +88,7 @@ export function StaffOrderDetail({
   };
 
   return (
-    <div className="flex flex-col h-full bg-card border-l border-border">
+    <div className="flex flex-col bg-card">
       {/* Top Header */}
       <div className="p-4 sm:p-5 border-b border-border flex items-start justify-between gap-3">
         <div>
@@ -116,8 +118,8 @@ export function StaffOrderDetail({
         </button>
       </div>
 
-      {/* Main Scrollable Content */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-6">
+      {/* Main Content */}
+      <div className="p-4 sm:p-5 space-y-6">
         {/* Next Actions Bar */}
         <div className="rounded-sm border border-border bg-background p-3.5 space-y-2">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block">
@@ -241,10 +243,44 @@ export function StaffOrderDetail({
                 <span>{order.customer_email}</span>
               </div>
             )}
+            <div className="flex items-center justify-between pt-1.5 border-t border-border/50 text-muted-foreground">
+              <span>
+                {order.order_items?.length || 0} item(s) · Total:{" "}
+                <strong className="text-foreground font-mono">
+                  {formatPaise(order.total_paise)}
+                </strong>
+              </span>
+              <span
+                className={`text-[10px] font-bold uppercase ${
+                  order.payment_status === "paid"
+                    ? "text-emerald-700 dark:text-emerald-400"
+                    : "text-amber-700 dark:text-amber-400"
+                }`}
+              >
+                {order.payment_status === "paid" ? "Paid" : "Pay at Store"}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Pickup Window & Scheduling */}
+        {/* Expand Control Button (Collapsed State Only) */}
+        {!isExpanded && (
+          <div>
+            <button
+              type="button"
+              onClick={() => setIsExpanded(true)}
+              aria-expanded={false}
+              className="w-full min-h-[48px] rounded-sm border border-border bg-card hover:bg-muted/60 hover:border-caramel/50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-foreground hover:text-caramel transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+            >
+              <span>View More ↓</span>
+            </button>
+          </div>
+        )}
+
+        {/* Expanded Detailed Sections */}
+        {isExpanded && (
+          <div className="space-y-6">
+            {/* Pickup Window & Scheduling */}
         <div className="space-y-2">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block">
             Pickup Schedule
@@ -292,64 +328,69 @@ export function StaffOrderDetail({
             Order Items ({order.order_items?.length || 0})
           </span>
           <div className="rounded-sm border border-border divide-y divide-border bg-background">
-            {order.order_items?.map((item) => (
-              <div key={item.id} className="p-3.5 space-y-2 text-xs">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <span className="font-semibold text-foreground text-sm">
+            {order.order_items?.map((item) => {
+              const variantText = formatOrderItemVariant(item);
+              return (
+                <div key={item.id} className="p-3.5 space-y-2 text-xs">
+                  {/* Top Header: Name and Total Price */}
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="font-semibold text-foreground text-sm break-words flex-1 min-w-0">
                       {item.product_name}
                     </span>
-                    {item.variant_label && (
-                      <p className="text-muted-foreground mt-0.5">
-                        {item.variant_label}
-                        {item.weight_grams ? ` · ${item.weight_grams}g` : ""}
-                      </p>
-                    )}
-                  </div>
-                  <div className="text-right shrink-0">
-                    <span className="font-mono font-semibold text-foreground">
+                    <span className="font-mono font-semibold text-foreground text-sm shrink-0 text-right">
                       {formatPaise(item.line_total_paise)}
                     </span>
-                    <p className="text-[11px] text-muted-foreground font-mono">
+                  </div>
+
+                  {/* Middle Line: Weight / Variant & Quantity Calculation */}
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-muted-foreground">
+                    {variantText && (
+                      <span className="font-medium text-xs text-foreground/80">
+                        {variantText}
+                      </span>
+                    )}
+                    <span className="text-[11px] font-mono ml-auto">
                       Qty: {item.quantity} × {formatPaise(item.unit_price_paise)}
-                    </p>
+                    </span>
                   </div>
-                </div>
 
-                {/* Attributes: Egg Type & Finish */}
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {item.egg_type && (
-                    <span
-                      className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${
-                        item.egg_type === "EGGLESS"
-                          ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
-                          : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300"
-                      }`}
-                    >
-                      {item.egg_type}
-                    </span>
-                  )}
-                  {item.finish && (
-                    <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground uppercase">
-                      Finish: {item.finish}
-                    </span>
-                  )}
-                </div>
-
-                {/* Cake Message Callout */}
-                {item.cake_message && (
-                  <div className="mt-2 rounded-sm border border-amber-300 bg-amber-50/70 p-2.5 text-xs text-amber-900 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-200">
-                    <div className="flex items-center gap-1.5 font-semibold text-[11px] uppercase tracking-wider text-amber-800 dark:text-amber-300 mb-0.5">
-                      <Sparkles className="size-3.5 shrink-0" />
-                      <span>Cake Inscription</span>
+                  {/* Attributes: Egg Type & Finish */}
+                  {(item.egg_type || item.finish) && (
+                    <div className="flex flex-wrap gap-1.5 pt-0.5">
+                      {item.egg_type && (
+                        <span
+                          className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${
+                            item.egg_type === "EGGLESS"
+                              ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                              : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300"
+                          }`}
+                        >
+                          {item.egg_type}
+                        </span>
+                      )}
+                      {item.finish && (
+                        <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground uppercase">
+                          Finish: {item.finish}
+                        </span>
+                      )}
                     </div>
-                    <p className="font-serif italic text-sm pl-5">
-                      &ldquo;{item.cake_message}&rdquo;
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
+                  )}
+
+                  {/* Cake Message Callout */}
+                  {item.cake_message && (
+                    <div className="mt-2 rounded-sm border border-amber-300 bg-amber-50/70 p-2.5 text-xs text-amber-900 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-200">
+                      <div className="flex items-center gap-1.5 font-semibold text-[11px] uppercase tracking-wider text-amber-800 dark:text-amber-300 mb-0.5">
+                        <Sparkles className="size-3.5 shrink-0" />
+                        <span>Cake Inscription</span>
+                      </div>
+                      <p className="font-serif italic text-sm pl-5">
+                        &ldquo;{item.cake_message}&rdquo;
+                      </p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -428,7 +469,7 @@ export function StaffOrderDetail({
           </span>
           <div className="rounded-sm border border-border bg-background p-3.5 space-y-3 text-xs">
             {order.order_internal_notes && order.order_internal_notes.length > 0 ? (
-              <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+              <div className="space-y-2">
                 {order.order_internal_notes.map((note) => (
                   <div
                     key={note.id}
@@ -508,6 +549,19 @@ export function StaffOrderDetail({
             )}
           </div>
         </div>
+
+        {/* Bottom Collapse Button */}
+        <div className="pt-1">
+          <button
+            type="button"
+            onClick={() => setIsExpanded(false)}
+            className="w-full min-h-[48px] rounded-sm border border-border/80 bg-background hover:bg-muted/60 hover:border-caramel/50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-caramel transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-caramel"
+          >
+            <span>View Less ↑</span>
+          </button>
+        </div>
+      </div>
+    )}
       </div>
     </div>
   );

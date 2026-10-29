@@ -193,9 +193,10 @@ export function StaffDashboard({
               {selectedOrder ? (
                 <aside
                   aria-label="Order Details"
-                  className="col-span-12 lg:col-span-5 xl:col-span-4 sticky top-20 rounded-sm border border-border bg-card overflow-hidden shadow-xs max-h-[calc(100vh-6rem)]"
+                  className="col-span-12 lg:col-span-5 xl:col-span-4 rounded-sm border border-border bg-card shadow-xs"
                 >
                   <StaffOrderDetail
+                    key={selectedOrder.id}
                     order={selectedOrder}
                     role={role}
                     onClose={() => setSelectedOrderId(null)}
@@ -250,7 +251,7 @@ export function StaffDashboard({
               {selectedCustomCake ? (
                 <aside
                   aria-label="Custom Cake Details"
-                  className="col-span-12 lg:col-span-5 xl:col-span-4 sticky top-20 rounded-sm border border-border bg-card overflow-hidden shadow-xs max-h-[calc(100vh-6rem)]"
+                  className="col-span-12 lg:col-span-5 xl:col-span-4 rounded-sm border border-border bg-card shadow-xs"
                 >
                   <StaffCustomCakeDetail
                     key={selectedCustomCake.id}
